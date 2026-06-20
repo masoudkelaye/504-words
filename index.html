@@ -1004,6 +1004,43 @@
     background: rgba(255,255,255,0.25);
     border-color: white;
   }
+  .account-bar .invite-btn {
+    padding: 4px 12px;
+    border: 1.5px solid #81c784;
+    border-radius: 15px;
+    background: rgba(76,175,80,0.2);
+    color: #a5d6a7;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .account-bar .invite-btn:hover {
+    background: rgba(76,175,80,0.4);
+    border-color: #a5d6a7;
+    color: white;
+  }
+
+  /* Invite toast */
+  .invite-toast {
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    background: #333;
+    color: white;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 600;
+    z-index: 10001;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+    white-space: nowrap;
+  }
+  @keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(20px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+  @keyframes toastOut { from { opacity:1; } to { opacity:0; } }
 
   /* Account Modal */
   .modal-overlay {
@@ -1169,7 +1206,8 @@
 <div class="account-bar" id="accountBar">
   <div class="account-avatar" id="accountAvatar">?</div>
   <div class="account-name" id="accountName">No user</div>
-  <button class="account-btn" onclick="openAccountModal()">👤 Switch User</button>
+  <button class="invite-btn" onclick="inviteFriend()">🎁 Invite</button>
+  <button class="account-btn" onclick="openAccountModal()">👤 Switch</button>
 </div>
 
 <!-- Streak Banner -->
@@ -1276,7 +1314,12 @@
 
 <div class="footer">
   504 Absolutely Essential Words for IELTS · Made with ❤️<br>
-  Audio powered by Web Speech API
+  Audio powered by Web Speech API<br><br>
+  <button onclick="inviteFriend()" style="
+    padding:10px 24px; border:2px solid var(--primary); border-radius:25px;
+    background:var(--en-bg); color:var(--primary); font-size:14px;
+    font-weight:700; cursor:pointer; transition:all 0.2s;
+  ">🎁 Invite a Friend to Learn Together</button>
 </div>
 
 <script>
@@ -3654,6 +3697,52 @@ function retryTest() {
   renderContent();
 }
 
+// ============== INVITE FRIEND ==============
+function inviteFriend() {
+  const p = loadProgress();
+  const acct = getActiveAccount();
+  const streak = p.currentStreak || 0;
+  const wordsSeen = p.wordsViewed ? p.wordsViewed.length : 0;
+  
+  const appUrl = window.location.href.split('?')[0].split('#')[0];
+  
+  let message = `📚 I'm learning 504 Essential IELTS Words with this free app!`;
+  if (wordsSeen > 0) message += `\n📖 ${wordsSeen} words learned so far`;
+  if (streak > 0) message += `\n🔥 ${streak}-day streak`;
+  message += `\n\n🇬🇧 English + 🇩🇪 German + 🇮🇷 Farsi translations, audio, and weekly tests!`;
+  message += `\n\n👉 ${appUrl}`;
+  
+  // Try native share (works great on phones)
+  if (navigator.share) {
+    navigator.share({
+      title: '504 Essential Words – IELTS Vocabulary',
+      text: message,
+      url: appUrl
+    }).catch(() => {
+      // User cancelled — that's fine
+    });
+  } else {
+    // Desktop fallback: copy to clipboard
+    navigator.clipboard.writeText(message).then(() => {
+      showInviteToast('✅ Invite link copied to clipboard!');
+    }).catch(() => {
+      // Clipboard failed — show the text to copy manually
+      prompt('Copy this invite message:', message);
+    });
+  }
+}
+
+function showInviteToast(text) {
+  const existing = document.querySelector('.invite-toast');
+  if (existing) existing.remove();
+  
+  const toast = document.createElement('div');
+  toast.className = 'invite-toast';
+  toast.textContent = text;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
 // ============== PWA INSTALL ==============
 let deferredPrompt = null;
 
@@ -3789,5 +3878,5 @@ function migrateOldData() {
   } catch(e) {}
 }
 </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0e9ba5cbde92c0f',t:'MTc4MTk0NzU0NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0ea24a1a8aeb570',t:'MTc4MTk1MTg5Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
