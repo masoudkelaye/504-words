@@ -2197,6 +2197,10 @@ function getYesterdayStr() {
 }
 
 function finishDay(week, day) {
+  if (!confirm('✅ Are you sure you finished studying all the words?\n\nThis will mark the day as complete and unlock the next day.')) {
+    return;
+  }
+  
   const p = loadProgress();
   const key = `${week}-${day}`;
   if (!p.daysFinished) p.daysFinished = [];
@@ -2316,9 +2320,53 @@ function showDayComplete(week, day) {
     <div class="dcb-title">Day Complete!</div>
     <div class="dcb-sub">${streak > 1 ? `🔥 ${streak}-day streak! Keep it going!` : 'Great job! Come back tomorrow to build your streak! 🔥'}</div>
     <button class="dcb-next" onclick="${nextAction}">${nextLabel}</button>
+    <div id="undoFinish" style="margin-top:12px;">
+      <button onclick="undoFinishDay(${week}, ${day})" style="
+        padding:8px 20px; border:1.5px solid #ef9a9a; border-radius:20px;
+        background:white; color:var(--error); font-size:12px; font-weight:600;
+        cursor:pointer; transition:all 0.2s;
+      ">↩️ Undo — I'm not done yet</button>
+    </div>
   `;
   container.appendChild(banner);
   banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  
+  // Auto-hide undo button after 30 seconds
+  setTimeout(() => {
+    const undo = document.getElementById('undoFinish');
+    if (undo) undo.style.display = 'none';
+  }, 30000);
+}
+
+function undoFinishDay(week, day) {
+  const p = loadProgress();
+  const key = `${week}-${day}`;
+  
+  // Remove from daysFinished
+  if (p.daysFinished) {
+    p.daysFinished = p.daysFinished.filter(k => k !== key);
+  }
+  
+  // Remove today from streakDates if no other day was finished today
+  const today = getTodayStr();
+  const otherFinishedToday = (p.daysFinished || []).some(k => {
+    // Check if any remaining finished day was also done today
+    // We can't know exactly, so only remove if this was the only finish today
+    return false;
+  });
+  if (!otherFinishedToday && p.streakDates) {
+    p.streakDates = p.streakDates.filter(d => d !== today);
+  }
+  
+  // Recalculate streak
+  p.currentStreak = calculateStreak(p.streakDates || []);
+  saveProgress(p);
+  
+  // Re-render everything
+  updateStreakBanner();
+  updateStatsUI();
+  renderDayNav();
+  renderContent();
 }
 
 function updateStreakBanner() {
@@ -3741,5 +3789,5 @@ function migrateOldData() {
   } catch(e) {}
 }
 </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0e9af95693531bc',t:'MTc4MTk0NzEwMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0e9ba5cbde92c0f',t:'MTc4MTk0NzU0NQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
