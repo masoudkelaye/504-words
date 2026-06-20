@@ -844,6 +844,198 @@
   .action-btn.purple:hover {
     background: #4a148c;
   }
+
+  /* ===== ACCOUNT MANAGER ===== */
+  .account-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #1557b0;
+    color: white;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .account-bar .account-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .account-bar .account-name {
+    flex: 1;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .account-bar .account-btn {
+    padding: 4px 12px;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 15px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .account-bar .account-btn:hover {
+    background: rgba(255,255,255,0.25);
+    border-color: white;
+  }
+
+  /* Account Modal */
+  .modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: white;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 380px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    overflow: hidden;
+    animation: modalSlide 0.3s ease;
+  }
+  @keyframes modalSlide { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  .modal-header {
+    padding: 20px 24px 16px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-header h2 {
+    font-size: 20px;
+    margin-bottom: 4px;
+  }
+  .modal-header p {
+    font-size: 13px;
+    color: var(--text-light);
+  }
+  .modal-body {
+    padding: 16px 24px;
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+  .modal-footer {
+    padding: 12px 24px 20px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Account list */
+  .account-list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .account-list-item:hover {
+    border-color: var(--primary);
+    background: var(--en-bg);
+  }
+  .account-list-item.active {
+    border-color: var(--primary);
+    background: var(--en-bg);
+  }
+  .account-list-item .ali-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+  }
+  .account-list-item .ali-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .account-list-item .ali-name {
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .account-list-item .ali-stats {
+    font-size: 11px;
+    color: var(--text-light);
+  }
+  .account-list-item .ali-delete {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: none;
+    background: none;
+    color: #bbb;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .account-list-item .ali-delete:hover {
+    background: #fce4ec;
+    color: var(--error);
+  }
+
+  /* New account form */
+  .new-account-form {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .new-account-form input {
+    flex: 1;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .new-account-form input:focus {
+    border-color: var(--primary);
+  }
+  .new-account-form button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 12px;
+    background: var(--primary);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s;
+  }
+  .new-account-form button:hover { background: var(--primary-dark); }
 </style>
 </head>
 <body>
@@ -858,6 +1050,13 @@
     <span id="progressLabel">0 / 504 words learned</span>
     <span id="weekProgress">Week 1</span>
   </div>
+</div>
+
+<!-- Account Bar -->
+<div class="account-bar" id="accountBar">
+  <div class="account-avatar" id="accountAvatar">?</div>
+  <div class="account-name" id="accountName">No user</div>
+  <button class="account-btn" onclick="openAccountModal()">👤 Switch User</button>
 </div>
 
 <!-- Stats Toggle -->
@@ -1633,19 +1832,179 @@ let currentDay = 0; // 0-5 = Mon-Sat, 6 = Sunday
 let totalWeeks = Math.ceil(WORDS_DB.length / WORDS_PER_WEEK);
 let testState = {};
 
-// ============== PROGRESS PERSISTENCE ==============
-const STORAGE_KEY = 'vocab504_progress';
+// ============== ACCOUNT MANAGEMENT ==============
+const ACCOUNTS_KEY = 'vocab504_accounts';
+const ACTIVE_KEY = 'vocab504_active_user';
+const AVATAR_COLORS = ['#1a73e8','#e53935','#43a047','#fb8c00','#8e24aa','#00897b','#d81b60','#5c6bc0','#f4511e','#00acc1'];
+
+function getAccounts() {
+  try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || []; } catch(e) { return []; }
+}
+function saveAccounts(list) {
+  try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list)); } catch(e) {}
+}
+function getActiveUserId() {
+  return localStorage.getItem(ACTIVE_KEY) || null;
+}
+function setActiveUserId(id) {
+  localStorage.setItem(ACTIVE_KEY, id);
+}
+
+function createAccount(name) {
+  const accounts = getAccounts();
+  const id = 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  const color = AVATAR_COLORS[accounts.length % AVATAR_COLORS.length];
+  const initial = name.trim().charAt(0).toUpperCase();
+  accounts.push({ id, name: name.trim(), color, initial, created: Date.now() });
+  saveAccounts(accounts);
+  setActiveUserId(id);
+  currentWeek = 0;
+  currentDay = 0;
+  return id;
+}
+
+function deleteAccount(id) {
+  let accounts = getAccounts();
+  const acct = accounts.find(a => a.id === id);
+  if (!acct) return;
+  if (!confirm(`Delete "${acct.name}" and all their progress?`)) return;
+  accounts = accounts.filter(a => a.id !== id);
+  saveAccounts(accounts);
+  try { localStorage.removeItem('vocab504_' + id); } catch(e) {}
+  if (getActiveUserId() === id) {
+    if (accounts.length > 0) {
+      switchToAccount(accounts[0].id);
+    } else {
+      localStorage.removeItem(ACTIVE_KEY);
+      openAccountModal(true);
+    }
+  }
+}
+
+function switchToAccount(id) {
+  setActiveUserId(id);
+  currentWeek = 0;
+  currentDay = 0;
+  const p = loadProgress();
+  if (p.lastWeek || p.lastDay) {
+    currentWeek = Math.min(p.lastWeek, totalWeeks - 1);
+    currentDay = p.lastDay;
+  }
+  updateAccountBar();
+  renderAll();
+  closeAccountModal();
+}
+
+function getActiveAccount() {
+  const id = getActiveUserId();
+  if (!id) return null;
+  return getAccounts().find(a => a.id === id) || null;
+}
+
+function updateAccountBar() {
+  const acct = getActiveAccount();
+  const avatar = document.getElementById('accountAvatar');
+  const name = document.getElementById('accountName');
+  if (acct) {
+    avatar.textContent = acct.initial;
+    avatar.style.background = acct.color;
+    name.textContent = acct.name;
+  } else {
+    avatar.textContent = '?';
+    avatar.style.background = 'rgba(255,255,255,0.2)';
+    name.textContent = 'No user selected';
+  }
+}
+
+// ============== ACCOUNT MODAL ==============
+function openAccountModal(forceCreate) {
+  closeAccountModal();
+  const accounts = getAccounts();
+  const activeId = getActiveUserId();
+  
+  const overlay = document.createElement('div');
+  overlay.id = 'accountModal';
+  overlay.className = 'modal-overlay';
+  if (!forceCreate) overlay.onclick = (e) => { if (e.target === overlay) closeAccountModal(); };
+  
+  let listHtml = '';
+  accounts.forEach(a => {
+    const p = loadProgressForUser(a.id);
+    const wordsSeen = p.wordsViewed ? p.wordsViewed.length : 0;
+    const examsDone = p.examScores ? Object.keys(p.examScores).length : 0;
+    const isActive = a.id === activeId;
+    listHtml += `
+      <div class="account-list-item ${isActive ? 'active' : ''}" onclick="switchToAccount('${a.id}')">
+        <div class="ali-avatar" style="background:${a.color}">${a.initial}</div>
+        <div class="ali-info">
+          <div class="ali-name">${a.name}${isActive ? ' ✓' : ''}</div>
+          <div class="ali-stats">${wordsSeen} words · ${examsDone} exams completed</div>
+        </div>
+        <button class="ali-delete" onclick="event.stopPropagation(); deleteAccount('${a.id}')" title="Delete">🗑️</button>
+      </div>`;
+  });
+  
+  if (accounts.length === 0) {
+    listHtml = `<div style="text-align:center; padding:20px; color:var(--text-light);">
+      <div style="font-size:40px; margin-bottom:8px;">👋</div>
+      <div style="font-size:15px; font-weight:600;">Welcome!</div>
+      <div style="font-size:13px;">Create your profile to start learning.</div>
+    </div>`;
+  }
+  
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <h2>👤 User Profiles</h2>
+        <p>Each person gets their own progress & scores</p>
+      </div>
+      <div class="modal-body">
+        ${listHtml}
+      </div>
+      <div class="modal-footer">
+        <div style="font-size:12px; font-weight:600; color:var(--text-light); margin-bottom:8px;">➕ Add New User</div>
+        <div class="new-account-form">
+          <input type="text" id="newAccountName" placeholder="Enter name..." maxlength="20"
+            onkeydown="if(event.key==='Enter')addNewAccount()">
+          <button onclick="addNewAccount()">Create</button>
+        </div>
+      </div>
+    </div>`;
+  
+  document.body.appendChild(overlay);
+  setTimeout(() => document.getElementById('newAccountName')?.focus(), 200);
+}
+
+function addNewAccount() {
+  const input = document.getElementById('newAccountName');
+  const name = input?.value.trim();
+  if (!name) { input?.focus(); return; }
+  if (name.length < 1) return;
+  const id = createAccount(name);
+  switchToAccount(id);
+}
+
+function closeAccountModal() {
+  const m = document.getElementById('accountModal');
+  if (m) m.remove();
+}
+
+// ============== PROGRESS PERSISTENCE (per-user) ==============
+function getStorageKey() {
+  const id = getActiveUserId();
+  return id ? 'vocab504_' + id : 'vocab504_progress';
+}
 
 function loadProgress() {
   try {
-    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const data = JSON.parse(localStorage.getItem(getStorageKey()));
     if (data) return data;
   } catch(e) {}
   return {
-    wordsViewed: [],        // array of word indices seen
-    daysCompleted: [],      // ["0-0","0-1",...] = "week-day"
-    examScores: {},         // { "0": {score:20,total:25,pct:80}, "1": ... }
-    wrongWords: {},         // { "0": [idx, idx, ...], "1": [...] } per week
+    wordsViewed: [],
+    daysCompleted: [],
+    examScores: {},
+    wrongWords: {},
     totalCorrect: 0,
     totalWrong: 0,
     lastWeek: 0,
@@ -1653,9 +2012,17 @@ function loadProgress() {
   };
 }
 
+function loadProgressForUser(userId) {
+  try {
+    const data = JSON.parse(localStorage.getItem('vocab504_' + userId));
+    if (data) return data;
+  } catch(e) {}
+  return { wordsViewed: [], daysCompleted: [], examScores: {}, wrongWords: {}, totalCorrect: 0, totalWrong: 0, lastWeek: 0, lastDay: 0 };
+}
+
 function saveProgress(p) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+    localStorage.setItem(getStorageKey(), JSON.stringify(p));
   } catch(e) {}
 }
 
@@ -1700,8 +2067,12 @@ function saveExamResult(week, score, total, wrongIndices) {
 }
 
 function resetProgress() {
-  if (confirm('🗑️ Reset all progress? This cannot be undone!')) {
-    localStorage.removeItem(STORAGE_KEY);
+  const acct = getActiveAccount();
+  const who = acct ? `"${acct.name}"` : 'this user';
+  if (confirm(`🗑️ Reset all progress for ${who}? This cannot be undone!`)) {
+    localStorage.removeItem(getStorageKey());
+    currentWeek = 0;
+    currentDay = 0;
     updateStatsUI();
     renderAll();
   }
@@ -2906,6 +3277,29 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('DOMContentLoaded', () => {
   initTTS();
   
+  // Migrate old single-user data if exists
+  migrateOldData();
+  
+  // Check if there's an active user
+  const accounts = getAccounts();
+  const activeId = getActiveUserId();
+  
+  if (accounts.length === 0 || !activeId || !accounts.find(a => a.id === activeId)) {
+    // No users or invalid active user — show account picker
+    if (accounts.length > 0) {
+      // Have accounts but no active one — just pick first
+      switchToAccount(accounts[0].id);
+    } else {
+      // No accounts at all — show welcome modal
+      renderAll();
+      updateAccountBar();
+      setTimeout(() => openAccountModal(true), 400);
+      return;
+    }
+  }
+  
+  updateAccountBar();
+  
   // Restore last position from saved progress
   const p = loadProgress();
   if (p.lastWeek || p.lastDay) {
@@ -2923,6 +3317,22 @@ window.addEventListener('DOMContentLoaded', () => {
     if (arrow) arrow.classList.add('open');
   }
 });
+
+// Migrate data from old single-user storage to new per-user system
+function migrateOldData() {
+  const accounts = getAccounts();
+  if (accounts.length > 0) return; // Already migrated
+  
+  try {
+    const oldData = JSON.parse(localStorage.getItem('vocab504_progress'));
+    if (oldData && oldData.wordsViewed && oldData.wordsViewed.length > 0) {
+      // There's old progress — create an account for it
+      const id = createAccount('My Profile');
+      localStorage.setItem('vocab504_' + id, JSON.stringify(oldData));
+      localStorage.removeItem('vocab504_progress');
+    }
+  } catch(e) {}
+}
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0e966daef37e859',t:'MTc4MTk0NDEyNA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
