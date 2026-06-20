@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vocab504-v5';
+const CACHE_NAME = 'vocab504-v6';
 
 self.addEventListener('install', event => {
   event.waitUntil(

@@ -125,6 +125,119 @@
     border-color: #81c784;
     color: var(--success);
   }
+  .nav-btn.locked {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+    background: #f5f5f5;
+    border-color: #e0e0e0;
+    color: #bbb;
+  }
+
+  /* Streak banner */
+  .streak-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #ff6d00, #ff9100);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+  }
+  .streak-banner .streak-fire { font-size: 22px; }
+  .streak-banner .streak-num { font-size: 22px; font-weight: 900; }
+  .streak-banner .streak-text { font-size: 12px; opacity: 0.9; font-weight: 500; }
+  .streak-banner.dead {
+    background: linear-gradient(135deg, #9e9e9e, #bdbdbd);
+  }
+
+  /* Finish button */
+  .finish-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--success), #43a047);
+    color: white;
+    font-size: 17px;
+    font-weight: 800;
+    cursor: pointer;
+    margin-top: 20px;
+    box-shadow: 0 4px 15px rgba(13,144,79,0.3);
+    transition: all 0.2s;
+  }
+  .finish-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(13,144,79,0.4); }
+  .finish-btn:active { transform: translateY(0); }
+  .finish-btn.finished {
+    background: linear-gradient(135deg, #bdbdbd, #9e9e9e);
+    cursor: default;
+    box-shadow: none;
+  }
+
+  /* Finished celebration */
+  .day-complete-banner {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    border: 2px solid #81c784;
+    border-radius: 16px;
+    margin-top: 16px;
+  }
+  .day-complete-banner .dcb-icon { font-size: 40px; margin-bottom: 8px; }
+  .day-complete-banner .dcb-title { font-size: 18px; font-weight: 800; color: var(--success); }
+  .day-complete-banner .dcb-sub { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+  .day-complete-banner .dcb-next {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 24px;
+    background: var(--success);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .day-complete-banner .dcb-next:hover { background: #2e7d32; }
+
+  /* Reminder banner */
+  .reminder-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: #e3f2fd;
+    border-bottom: 1px solid #bbdefb;
+    font-size: 13px;
+    color: var(--primary);
+  }
+  .reminder-banner button {
+    padding: 5px 14px;
+    border: 1.5px solid var(--primary);
+    border-radius: 15px;
+    background: white;
+    color: var(--primary);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .reminder-banner .rb-dismiss {
+    background: none;
+    border: none;
+    color: #90caf9;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0 4px;
+  }
 
   /* Week selector */
   .week-selector {
@@ -1059,6 +1172,20 @@
   <button class="account-btn" onclick="openAccountModal()">👤 Switch User</button>
 </div>
 
+<!-- Streak Banner -->
+<div class="streak-banner" id="streakBanner" style="display:none">
+  <span class="streak-fire">🔥</span>
+  <span class="streak-num" id="streakNum">0</span>
+  <span class="streak-text" id="streakText">day streak</span>
+</div>
+
+<!-- Reminder Banner -->
+<div class="reminder-banner" id="reminderBanner" style="display:none">
+  <span style="flex:1">🔔 <strong>Enable daily reminders</strong> so you never miss a day!</span>
+  <button onclick="enableReminder()">Enable</button>
+  <button class="rb-dismiss" onclick="dismissReminder()">×</button>
+</div>
+
 <!-- Stats Toggle -->
 <div class="stats-toggle" onclick="toggleStats()">
   <span>📊 My Progress</span>
@@ -1096,11 +1223,11 @@
     </div>
   </div>
 
-  <div class="stats-panel">
+  <div class="stats-panel" style="grid-template-columns:1fr 1fr 1fr 1fr;">
     <div class="stat-card">
       <div class="stat-icon">📖</div>
       <div class="stat-value" id="statWordsLearned">0</div>
-      <div class="stat-label">Words Seen</div>
+      <div class="stat-label">Words</div>
     </div>
     <div class="stat-card green">
       <div class="stat-icon">✅</div>
@@ -1110,7 +1237,12 @@
     <div class="stat-card orange">
       <div class="stat-icon">❌</div>
       <div class="stat-value" id="statWrong">0</div>
-      <div class="stat-label">To Review</div>
+      <div class="stat-label">Review</div>
+    </div>
+    <div class="stat-card" style="border-color:#ff9100;">
+      <div class="stat-icon">🔥</div>
+      <div class="stat-value" id="statStreak" style="color:#ff6d00;">0</div>
+      <div class="stat-label">Streak</div>
     </div>
   </div>
 
@@ -2008,7 +2140,12 @@ function loadProgress() {
     totalCorrect: 0,
     totalWrong: 0,
     lastWeek: 0,
-    lastDay: 0
+    lastDay: 0,
+    daysFinished: [],       // explicitly finished days ["0-0","0-1",...]
+    streakDates: [],        // dates studied ["2026-06-20","2026-06-21",...]
+    currentStreak: 0,
+    bestStreak: 0,
+    reminderDismissed: false
   };
 }
 
@@ -2017,7 +2154,7 @@ function loadProgressForUser(userId) {
     const data = JSON.parse(localStorage.getItem('vocab504_' + userId));
     if (data) return data;
   } catch(e) {}
-  return { wordsViewed: [], daysCompleted: [], examScores: {}, wrongWords: {}, totalCorrect: 0, totalWrong: 0, lastWeek: 0, lastDay: 0 };
+  return { wordsViewed: [], daysCompleted: [], daysFinished: [], examScores: {}, wrongWords: {}, totalCorrect: 0, totalWrong: 0, lastWeek: 0, lastDay: 0, streakDates: [], currentStreak: 0, bestStreak: 0, reminderDismissed: false };
 }
 
 function saveProgress(p) {
@@ -2036,7 +2173,6 @@ function markDayViewed(week, day) {
   if (!p.daysCompleted.includes(key)) {
     p.daysCompleted.push(key);
   }
-  // Mark words as viewed
   const start = week * WORDS_PER_WEEK + day * WORDS_PER_DAY;
   const end = Math.min(start + WORDS_PER_DAY, WORDS_DB.length);
   for (let i = start; i < end; i++) {
@@ -2047,6 +2183,232 @@ function markDayViewed(week, day) {
   p.lastWeek = week;
   p.lastDay = day;
   saveProgress(p);
+}
+
+// ============== FINISH DAY & STREAK ==============
+function getTodayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function getYesterdayStr() {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().split('T')[0];
+}
+
+function finishDay(week, day) {
+  const p = loadProgress();
+  const key = `${week}-${day}`;
+  if (!p.daysFinished) p.daysFinished = [];
+  if (!p.streakDates) p.streakDates = [];
+  
+  if (!p.daysFinished.includes(key)) {
+    p.daysFinished.push(key);
+  }
+  
+  // Record today's date for streak
+  const today = getTodayStr();
+  if (!p.streakDates.includes(today)) {
+    p.streakDates.push(today);
+  }
+  
+  // Calculate streak
+  p.currentStreak = calculateStreak(p.streakDates);
+  if (!p.bestStreak) p.bestStreak = 0;
+  if (p.currentStreak > p.bestStreak) {
+    p.bestStreak = p.currentStreak;
+  }
+  
+  p.lastWeek = week;
+  p.lastDay = day;
+  saveProgress(p);
+  
+  updateStreakBanner();
+  updateStatsUI();
+  renderDayNav();
+  
+  // Show celebration
+  showDayComplete(week, day);
+}
+
+function calculateStreak(dates) {
+  if (!dates || dates.length === 0) return 0;
+  const sorted = [...dates].sort().reverse();
+  const today = getTodayStr();
+  const yesterday = getYesterdayStr();
+  
+  // Streak must include today or yesterday
+  if (sorted[0] !== today && sorted[0] !== yesterday) return 0;
+  
+  let streak = 1;
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const curr = new Date(sorted[i]);
+    const prev = new Date(sorted[i + 1]);
+    const diffDays = Math.round((curr - prev) / (1000 * 60 * 60 * 24));
+    if (diffDays === 1) {
+      streak++;
+    } else if (diffDays > 1) {
+      break;
+    }
+    // diffDays === 0 means same day, skip
+  }
+  return streak;
+}
+
+function isDayFinished(week, day) {
+  const p = loadProgress();
+  if (!p.daysFinished) return false;
+  return p.daysFinished.includes(`${week}-${day}`);
+}
+
+function isDayUnlocked(week, day) {
+  // First day of first week is always unlocked
+  if (week === 0 && day === 0) return true;
+  
+  // Sunday (day 6) is unlocked if all 6 weekdays are finished
+  if (day === 6) {
+    for (let d = 0; d < 6; d++) {
+      if (!isDayFinished(week, d)) return false;
+    }
+    return true;
+  }
+  
+  // Day is unlocked if previous day is finished
+  if (day > 0) {
+    return isDayFinished(week, day - 1);
+  }
+  
+  // First day of a new week: previous week's Sunday test must be done
+  if (week > 0) {
+    const p = loadProgress();
+    return !!p.examScores[week - 1];
+  }
+  
+  return true;
+}
+
+function showDayComplete(week, day) {
+  const container = document.getElementById('mainContent');
+  const existing = document.getElementById('dayCompleteBanner');
+  if (existing) existing.remove();
+  
+  const p = loadProgress();
+  const streak = p.currentStreak || calculateStreak(p.streakDates || []);
+  
+  // Determine next step
+  let nextLabel, nextAction;
+  if (day < 5) {
+    nextLabel = `Go to ${['Tuesday','Wednesday','Thursday','Friday','Saturday'][day]}'s words →`;
+    nextAction = `selectDay(${day + 1})`;
+  } else if (day === 5) {
+    nextLabel = `Take the Sunday Test →`;
+    nextAction = `selectDay(6)`;
+  } else {
+    nextLabel = `Go to next week →`;
+    nextAction = `changeWeek(1)`;
+  }
+  
+  const banner = document.createElement('div');
+  banner.id = 'dayCompleteBanner';
+  banner.className = 'day-complete-banner';
+  banner.innerHTML = `
+    <div class="dcb-icon">🎉</div>
+    <div class="dcb-title">Day Complete!</div>
+    <div class="dcb-sub">${streak > 1 ? `🔥 ${streak}-day streak! Keep it going!` : 'Great job! Come back tomorrow to build your streak! 🔥'}</div>
+    <button class="dcb-next" onclick="${nextAction}">${nextLabel}</button>
+  `;
+  container.appendChild(banner);
+  banner.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function updateStreakBanner() {
+  const banner = document.getElementById('streakBanner');
+  const numEl = document.getElementById('streakNum');
+  const textEl = document.getElementById('streakText');
+  if (!banner) return;
+  
+  const p = loadProgress();
+  const streak = p.currentStreak || calculateStreak(p.streakDates || []);
+  
+  if (streak > 0) {
+    banner.style.display = 'flex';
+    banner.classList.remove('dead');
+    numEl.textContent = streak;
+    textEl.textContent = streak === 1 ? 'day streak' : 'day streak';
+  } else if (p.streakDates && p.streakDates.length > 0) {
+    // Had a streak but it died
+    banner.style.display = 'flex';
+    banner.classList.add('dead');
+    numEl.textContent = '0';
+    textEl.textContent = 'streak lost! Study today to start again';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// ============== DAILY REMINDER ==============
+function showReminderBanner() {
+  const p = loadProgress();
+  if (p.reminderDismissed) return;
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') return; // already enabled
+  
+  const banner = document.getElementById('reminderBanner');
+  if (banner) banner.style.display = 'flex';
+}
+
+function enableReminder() {
+  if (!('Notification' in window)) {
+    alert('Your browser does not support notifications.');
+    return;
+  }
+  
+  Notification.requestPermission().then(perm => {
+    if (perm === 'granted') {
+      scheduleReminder();
+      const banner = document.getElementById('reminderBanner');
+      if (banner) {
+        banner.innerHTML = '<span style="flex:1">✅ <strong>Reminders enabled!</strong> You\'ll get a daily reminder at 9:00 AM.</span>';
+        setTimeout(() => banner.style.display = 'none', 3000);
+      }
+    }
+  });
+}
+
+function dismissReminder() {
+  const banner = document.getElementById('reminderBanner');
+  if (banner) banner.style.display = 'none';
+  const p = loadProgress();
+  p.reminderDismissed = true;
+  saveProgress(p);
+}
+
+function scheduleReminder() {
+  // Check every 30 minutes if it's time to remind
+  setInterval(() => {
+    const now = new Date();
+    const hour = now.getHours();
+    const min = now.getMinutes();
+    // Remind at 9:00 AM if not studied today
+    if (hour === 9 && min < 30) {
+      const p = loadProgress();
+      const today = getTodayStr();
+      if (!p.streakDates || !p.streakDates.includes(today)) {
+        if (Notification.permission === 'granted') {
+          new Notification('📚 504 Essential Words', {
+            body: '🔥 Don\'t break your streak! Study today\'s 5 words now.',
+            icon: './icon-192.png',
+            tag: 'daily-reminder'
+          });
+        }
+      }
+    }
+  }, 30 * 60 * 1000); // every 30 min
+}
+
+// Start reminder if already granted
+if ('Notification' in window && Notification.permission === 'granted') {
+  scheduleReminder();
 }
 
 function saveExamResult(week, score, total, wrongIndices) {
@@ -2131,6 +2493,10 @@ function updateStatsUI() {
   setEl('statCorrect', p.totalCorrect);
   setEl('statWrong', p.totalWrong);
   
+  // Update streak stat
+  const streak = p.currentStreak || calculateStreak(p.streakDates || []);
+  setEl('statStreak', streak);
+  
   // Update exam history bars
   renderExamBars(p);
   
@@ -2204,6 +2570,10 @@ function changeWeek(delta) {
 }
 
 function selectDay(day) {
+  // Check if day is unlocked
+  if (!isDayUnlocked(currentWeek, day)) {
+    return; // Can't access locked days
+  }
   currentDay = day;
   renderContent();
   updateDayNav();
@@ -2254,16 +2624,21 @@ function renderDayNav() {
   let html = '';
   for (let i = 0; i < 7; i++) {
     const isSun = i === 6;
-    const dayKey = `${currentWeek}-${i}`;
-    const isDone = i < 6 ? p.daysCompleted.includes(dayKey) : !!p.examScores[currentWeek];
+    const finished = i < 6 ? isDayFinished(currentWeek, i) : !!p.examScores[currentWeek];
+    const unlocked = isDayUnlocked(currentWeek, i);
     const cls = [
       'nav-btn',
       i === currentDay ? 'active' : '',
       isSun ? 'sunday' : '',
-      isDone && i !== currentDay ? 'completed' : ''
+      finished && i !== currentDay ? 'completed' : '',
+      !unlocked && i !== currentDay ? 'locked' : ''
     ].filter(Boolean).join(' ');
-    const icon = isSun ? ' 📝' : (isDone && i !== currentDay ? ' ✓' : '');
-    html += `<button class="${cls}" onclick="selectDay(${i})">${days[i]}${icon}</button>`;
+    const icon = isSun ? ' 📝' : finished ? ' ✓' : !unlocked ? ' 🔒' : '';
+    if (unlocked) {
+      html += `<button class="${cls}" onclick="selectDay(${i})">${days[i]}${icon}</button>`;
+    } else {
+      html += `<button class="${cls}" title="Finish the previous day first">${days[i]}${icon}</button>`;
+    }
   }
   nav.innerHTML = html;
 }
@@ -2317,8 +2692,10 @@ function renderDayWords(container) {
     return;
   }
 
-  // Mark this day as viewed in progress
+  // Mark words as viewed (but NOT finished — that requires the button)
   markDayViewed(currentWeek, currentDay);
+
+  const alreadyFinished = isDayFinished(currentWeek, currentDay);
 
   let html = `
     <div class="day-label">
@@ -2333,6 +2710,19 @@ function renderDayWords(container) {
     const num = globalStart + i + 1;
     html += renderWordCard(w, num, i);
   });
+
+  // Finish button
+  if (alreadyFinished) {
+    html += `
+      <button class="finish-btn finished" disabled>
+        ✅ Day Completed
+      </button>`;
+  } else {
+    html += `
+      <button class="finish-btn" onclick="finishDay(${currentWeek}, ${currentDay})">
+        ✅ I'm Done Studying — Finish Day
+      </button>`;
+  }
 
   container.innerHTML = html;
   updateStatsUI();
@@ -2873,6 +3263,17 @@ function submitTest() {
   testState.wrongIndices = uniqueWrong;
   saveExamResult(currentWeek, correct, total, uniqueWrong);
 
+  // Record streak for Sunday test too
+  const sp = loadProgress();
+  const today = getTodayStr();
+  if (!sp.streakDates) sp.streakDates = [];
+  if (!sp.streakDates.includes(today)) sp.streakDates.push(today);
+  sp.currentStreak = calculateStreak(sp.streakDates);
+  if (!sp.bestStreak) sp.bestStreak = 0;
+  if (sp.currentStreak > sp.bestStreak) sp.bestStreak = sp.currentStreak;
+  saveProgress(sp);
+  updateStreakBanner();
+
   // Show score
   const pct = Math.round((correct / total) * 100);
   document.getElementById('testScore').style.display = 'block';
@@ -3316,6 +3717,12 @@ window.addEventListener('DOMContentLoaded', () => {
     if (body) body.classList.add('open');
     if (arrow) arrow.classList.add('open');
   }
+  
+  // Show streak banner
+  updateStreakBanner();
+  
+  // Show reminder banner if not dismissed
+  showReminderBanner();
 });
 
 // Migrate data from old single-user storage to new per-user system
@@ -3334,5 +3741,5 @@ function migrateOldData() {
   } catch(e) {}
 }
 </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0e9868ac96db570',t:'MTc4MTk0NTQyMg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0e9af95693531bc',t:'MTc4MTk0NzEwMw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
