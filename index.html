@@ -564,6 +564,286 @@
   .tf-btn.correct { border-color: var(--success); background: #e8f5e9; color: var(--success); }
   .tf-btn.wrong { border-color: var(--error); background: #fce4ec; color: var(--error); }
   .tf-btn:disabled { cursor: not-allowed; }
+
+  /* ===== STATS DASHBOARD ===== */
+  .stats-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    padding: 12px 16px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-card {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 10px 8px;
+    text-align: center;
+    border: 1px solid var(--border);
+  }
+  .stat-card .stat-icon { font-size: 18px; }
+  .stat-card .stat-value {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 2px 0;
+    line-height: 1.2;
+  }
+  .stat-card .stat-label {
+    font-size: 10px;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .stat-card.green .stat-value { color: var(--success); }
+  .stat-card.orange .stat-value { color: var(--accent); }
+
+  /* Progress ring */
+  .progress-ring-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .progress-ring {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    flex-shrink: 0;
+  }
+  .progress-ring svg { transform: rotate(-90deg); }
+  .progress-ring .ring-bg {
+    fill: none;
+    stroke: #e8e8e8;
+    stroke-width: 6;
+  }
+  .progress-ring .ring-fill {
+    fill: none;
+    stroke: var(--primary);
+    stroke-width: 6;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.8s ease;
+  }
+  .progress-ring .ring-text {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  .progress-details {
+    flex: 1;
+  }
+  .progress-details .pd-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .progress-details .pd-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .pd-bar-label {
+    font-size: 11px;
+    color: var(--text-light);
+    width: 55px;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+  .pd-bar-track {
+    flex: 1;
+    height: 6px;
+    background: #e8e8e8;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .pd-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s ease;
+  }
+  .pd-bar-fill.blue { background: var(--primary); }
+  .pd-bar-fill.green { background: var(--success); }
+  .pd-bar-fill.orange { background: var(--accent); }
+  .pd-bar-pct {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-light);
+    width: 32px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* Stats toggle */
+  .stats-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 12px;
+    color: var(--text-light);
+    font-weight: 600;
+    user-select: none;
+    transition: background 0.2s;
+  }
+  .stats-toggle:hover { background: var(--bg); }
+  .stats-toggle .toggle-arrow {
+    transition: transform 0.3s;
+    font-size: 10px;
+  }
+  .stats-toggle .toggle-arrow.open { transform: rotate(180deg); }
+  .stats-body { display: none; }
+  .stats-body.open { display: block; }
+
+  /* Week exam history */
+  .exam-history {
+    padding: 12px 16px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .exam-history-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-light);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .exam-week-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
+    height: 50px;
+  }
+  .exam-bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+  }
+  .exam-bar {
+    width: 100%;
+    max-width: 28px;
+    border-radius: 4px 4px 0 0;
+    min-height: 3px;
+    transition: height 0.4s ease;
+  }
+  .exam-bar.score-high { background: var(--success); }
+  .exam-bar.score-mid { background: var(--accent); }
+  .exam-bar.score-low { background: var(--error); }
+  .exam-bar.score-none { background: #e0e0e0; }
+  .exam-bar-label {
+    font-size: 8px;
+    color: var(--text-light);
+    margin-top: 3px;
+    font-weight: 600;
+  }
+
+  /* ===== REVIEW MISTAKES ===== */
+  .review-section {
+    margin-top: 20px;
+  }
+  .review-header {
+    background: linear-gradient(135deg, #e65100, #ff8f00);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .review-header h3 { font-size: 18px; margin-bottom: 4px; }
+  .review-header p { font-size: 12px; opacity: 0.85; }
+  .review-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: 2px solid var(--accent);
+    border-radius: 12px;
+    background: #fff3e0;
+    color: var(--accent);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 12px;
+    text-align: center;
+  }
+  .review-btn:hover { background: var(--accent); color: white; }
+
+  /* Reset button */
+  .reset-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 15px;
+    background: white;
+    color: var(--text-light);
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-left: 8px;
+  }
+  .reset-btn:hover { border-color: var(--error); color: var(--error); }
+
+  /* Mini-test for review */
+  .mini-test-header {
+    background: linear-gradient(135deg, #6a1b9a, #ab47bc);
+    color: white;
+    padding: 16px 20px;
+    border-radius: 16px;
+    margin: 20px 0 16px;
+    text-align: center;
+    box-shadow: var(--shadow-lg);
+  }
+  .mini-test-header h3 { font-size: 18px; margin-bottom: 4px; }
+  .mini-test-header p { font-size: 12px; opacity: 0.85; }
+  .mini-test-score {
+    font-size: 32px;
+    font-weight: 800;
+    margin: 8px 0;
+  }
+  .mini-test-result {
+    padding: 14px;
+    border-radius: 12px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 15px;
+    margin-top: 12px;
+  }
+  .mini-test-result.pass {
+    background: #e8f5e9;
+    color: var(--success);
+    border: 2px solid #81c784;
+  }
+  .mini-test-result.fail {
+    background: #fce4ec;
+    color: var(--error);
+    border: 2px solid #ef9a9a;
+  }
+  .action-btn.purple {
+    background: #6a1b9a;
+    color: white;
+  }
+  .action-btn.purple:hover {
+    background: #4a148c;
+  }
 </style>
 </head>
 <body>
@@ -577,6 +857,70 @@
   <div class="progress-text">
     <span id="progressLabel">0 / 504 words learned</span>
     <span id="weekProgress">Week 1</span>
+  </div>
+</div>
+
+<!-- Stats Toggle -->
+<div class="stats-toggle" onclick="toggleStats()">
+  <span>📊 My Progress</span>
+  <span class="toggle-arrow" id="statsArrow">▼</span>
+</div>
+
+<!-- Stats Dashboard (collapsible) -->
+<div class="stats-body" id="statsBody">
+  <div class="progress-ring-container">
+    <div class="progress-ring">
+      <svg width="60" height="60">
+        <circle class="ring-bg" cx="30" cy="30" r="25"/>
+        <circle class="ring-fill" id="ringFill" cx="30" cy="30" r="25"
+          stroke-dasharray="157" stroke-dashoffset="157"/>
+      </svg>
+      <div class="ring-text" id="ringText">0%</div>
+    </div>
+    <div class="progress-details">
+      <div class="pd-title">Overall Progress</div>
+      <div class="pd-bar-row">
+        <span class="pd-bar-label">📖 Words</span>
+        <div class="pd-bar-track"><div class="pd-bar-fill blue" id="pdWordsBar" style="width:0%"></div></div>
+        <span class="pd-bar-pct" id="pdWordsPct">0%</span>
+      </div>
+      <div class="pd-bar-row">
+        <span class="pd-bar-label">📅 Days</span>
+        <div class="pd-bar-track"><div class="pd-bar-fill green" id="pdDaysBar" style="width:0%"></div></div>
+        <span class="pd-bar-pct" id="pdDaysPct">0%</span>
+      </div>
+      <div class="pd-bar-row">
+        <span class="pd-bar-label">📝 Exams</span>
+        <div class="pd-bar-track"><div class="pd-bar-fill orange" id="pdExamsBar" style="width:0%"></div></div>
+        <span class="pd-bar-pct" id="pdExamsPct">0%</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-panel">
+    <div class="stat-card">
+      <div class="stat-icon">📖</div>
+      <div class="stat-value" id="statWordsLearned">0</div>
+      <div class="stat-label">Words Seen</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-icon">✅</div>
+      <div class="stat-value" id="statCorrect">0</div>
+      <div class="stat-label">Correct</div>
+    </div>
+    <div class="stat-card orange">
+      <div class="stat-icon">❌</div>
+      <div class="stat-value" id="statWrong">0</div>
+      <div class="stat-label">To Review</div>
+    </div>
+  </div>
+
+  <div class="exam-history">
+    <div class="exam-history-title">
+      Weekly Exam Scores
+      <button class="reset-btn" onclick="resetProgress()">🗑️ Reset</button>
+    </div>
+    <div class="exam-week-bars" id="examBars"></div>
   </div>
 </div>
 
@@ -1289,6 +1633,143 @@ let currentDay = 0; // 0-5 = Mon-Sat, 6 = Sunday
 let totalWeeks = Math.ceil(WORDS_DB.length / WORDS_PER_WEEK);
 let testState = {};
 
+// ============== PROGRESS PERSISTENCE ==============
+const STORAGE_KEY = 'vocab504_progress';
+
+function loadProgress() {
+  try {
+    const data = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    if (data) return data;
+  } catch(e) {}
+  return {
+    wordsViewed: [],        // array of word indices seen
+    daysCompleted: [],      // ["0-0","0-1",...] = "week-day"
+    examScores: {},         // { "0": {score:20,total:25,pct:80}, "1": ... }
+    wrongWords: {},         // { "0": [idx, idx, ...], "1": [...] } per week
+    totalCorrect: 0,
+    totalWrong: 0,
+    lastWeek: 0,
+    lastDay: 0
+  };
+}
+
+function saveProgress(p) {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(p));
+  } catch(e) {}
+}
+
+function getProgress() {
+  return loadProgress();
+}
+
+function markDayViewed(week, day) {
+  const p = loadProgress();
+  const key = `${week}-${day}`;
+  if (!p.daysCompleted.includes(key)) {
+    p.daysCompleted.push(key);
+  }
+  // Mark words as viewed
+  const start = week * WORDS_PER_WEEK + day * WORDS_PER_DAY;
+  const end = Math.min(start + WORDS_PER_DAY, WORDS_DB.length);
+  for (let i = start; i < end; i++) {
+    if (!p.wordsViewed.includes(i)) {
+      p.wordsViewed.push(i);
+    }
+  }
+  p.lastWeek = week;
+  p.lastDay = day;
+  saveProgress(p);
+}
+
+function saveExamResult(week, score, total, wrongIndices) {
+  const p = loadProgress();
+  const prevExam = p.examScores[week];
+  
+  // Update totals: remove old exam counts if re-taking
+  if (prevExam) {
+    p.totalCorrect -= prevExam.score;
+    p.totalWrong -= (prevExam.total - prevExam.score);
+  }
+  
+  p.examScores[week] = { score, total, pct: Math.round((score/total)*100) };
+  p.wrongWords[week] = wrongIndices;
+  p.totalCorrect += score;
+  p.totalWrong += (total - score);
+  saveProgress(p);
+}
+
+function resetProgress() {
+  if (confirm('🗑️ Reset all progress? This cannot be undone!')) {
+    localStorage.removeItem(STORAGE_KEY);
+    updateStatsUI();
+    renderAll();
+  }
+}
+
+function toggleStats() {
+  const body = document.getElementById('statsBody');
+  const arrow = document.getElementById('statsArrow');
+  const isOpen = body.classList.toggle('open');
+  arrow.classList.toggle('open', isOpen);
+}
+
+// ============== STATS UI ==============
+function updateStatsUI() {
+  const p = loadProgress();
+  const totalWords = WORDS_DB.length;
+  const totalDays = Math.ceil(totalWords / WORDS_PER_DAY);
+  const totalExams = totalWeeks;
+  
+  const wordsSeen = p.wordsViewed.length;
+  const daysDone = p.daysCompleted.length;
+  const examsDone = Object.keys(p.examScores).length;
+  
+  const wordsPct = Math.round((wordsSeen / totalWords) * 100);
+  const daysPct = Math.round((daysDone / totalDays) * 100);
+  const examsPct = Math.round((examsDone / totalExams) * 100);
+  
+  // Overall = weighted average
+  const overallPct = Math.round((wordsPct * 0.4 + daysPct * 0.3 + examsPct * 0.3));
+  
+  // Update progress ring
+  const circumference = 2 * Math.PI * 25; // r=25
+  const offset = circumference - (overallPct / 100) * circumference;
+  const ringFill = document.getElementById('ringFill');
+  const ringText = document.getElementById('ringText');
+  if (ringFill) {
+    ringFill.style.strokeDasharray = circumference;
+    ringFill.style.strokeDashoffset = offset;
+  }
+  if (ringText) ringText.textContent = overallPct + '%';
+  
+  // Update detail bars
+  const setBar = (id, pct) => {
+    const bar = document.getElementById(id + 'Bar');
+    const label = document.getElementById(id + 'Pct');
+    if (bar) bar.style.width = pct + '%';
+    if (label) label.textContent = pct + '%';
+  };
+  setBar('pdWords', wordsPct);
+  setBar('pdDays', daysPct);
+  setBar('pdExams', examsPct);
+  
+  // Update stat cards
+  const setEl = (id, val) => { const el = document.getElementById(id); if(el) el.textContent = val; };
+  setEl('statWordsLearned', wordsSeen);
+  setEl('statCorrect', p.totalCorrect);
+  setEl('statWrong', p.totalWrong);
+  
+  // Update exam history bars
+  renderExamBars(p);
+  
+  // Update header progress bar (use words seen)
+  const headerBar = document.getElementById('progressBar');
+  const headerLabel = document.getElementById('progressLabel');
+  if (headerBar) headerBar.style.width = wordsPct + '%';
+  if (headerLabel) headerLabel.textContent = `${wordsSeen} / ${totalWords} words learned`;
+}
+
 // Speaker icon SVG
 const speakerSVG = `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>`;
 
@@ -1363,6 +1844,24 @@ function renderAll() {
   renderContent();
 }
 
+function renderExamBars(p) {
+  const container = document.getElementById('examBars');
+  if (!container) return;
+  let html = '';
+  const weeksToShow = Math.min(totalWeeks, 17);
+  for (let w = 0; w < weeksToShow; w++) {
+    const exam = p.examScores[w];
+    const pct = exam ? exam.pct : 0;
+    const height = exam ? Math.max(pct * 0.45, 3) : 3;
+    const cls = !exam ? 'score-none' : pct >= 70 ? 'score-high' : pct >= 50 ? 'score-mid' : 'score-low';
+    html += `<div class="exam-bar-col">
+      <div class="exam-bar ${cls}" style="height:${height}px" title="Week ${w+1}: ${exam ? pct+'%' : 'Not taken'}"></div>
+      <div class="exam-bar-label">${w+1}</div>
+    </div>`;
+  }
+  container.innerHTML = html;
+}
+
 function updateWeekSelector() {
   document.getElementById('weekLabel').textContent = `Week ${currentWeek + 1} of ${totalWeeks}`;
   document.getElementById('prevWeek').disabled = currentWeek === 0;
@@ -1371,27 +1870,29 @@ function updateWeekSelector() {
   const startWord = currentWeek * WORDS_PER_WEEK + 1;
   const endWord = Math.min(startWord + WORDS_PER_WEEK - 1, WORDS_DB.length);
   document.getElementById('weekDates').textContent = `Words ${startWord}–${endWord}`;
-
-  // Update header progress
-  const wordsLearned = Math.min((currentWeek * WORDS_PER_WEEK) + (currentDay < 6 ? (currentDay + 1) * WORDS_PER_DAY : WORDS_PER_WEEK), WORDS_DB.length);
-  const pct = Math.round((wordsLearned / WORDS_DB.length) * 100);
-  document.getElementById('progressBar').style.width = pct + '%';
-  document.getElementById('progressLabel').textContent = `${wordsLearned} / ${WORDS_DB.length} words`;
   document.getElementById('weekProgress').textContent = `Week ${currentWeek + 1}`;
+
+  // Update stats dashboard
+  updateStatsUI();
 }
 
 function renderDayNav() {
   const nav = document.getElementById('dayNav');
   const days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const p = loadProgress();
   let html = '';
   for (let i = 0; i < 7; i++) {
     const isSun = i === 6;
+    const dayKey = `${currentWeek}-${i}`;
+    const isDone = i < 6 ? p.daysCompleted.includes(dayKey) : !!p.examScores[currentWeek];
     const cls = [
       'nav-btn',
       i === currentDay ? 'active' : '',
-      isSun ? 'sunday' : ''
-    ].join(' ');
-    html += `<button class="${cls}" onclick="selectDay(${i})">${days[i]}${isSun ? ' 📝' : ''}</button>`;
+      isSun ? 'sunday' : '',
+      isDone && i !== currentDay ? 'completed' : ''
+    ].filter(Boolean).join(' ');
+    const icon = isSun ? ' 📝' : (isDone && i !== currentDay ? ' ✓' : '');
+    html += `<button class="${cls}" onclick="selectDay(${i})">${days[i]}${icon}</button>`;
   }
   nav.innerHTML = html;
 }
@@ -1445,6 +1946,9 @@ function renderDayWords(container) {
     return;
   }
 
+  // Mark this day as viewed in progress
+  markDayViewed(currentWeek, currentDay);
+
   let html = `
     <div class="day-label">
       <div class="day-icon">${currentDay + 1}</div>
@@ -1460,6 +1964,7 @@ function renderDayWords(container) {
   });
 
   container.innerHTML = html;
+  updateStatsUI();
 }
 
 function renderWordCard(w, num, idx) {
@@ -1610,6 +2115,25 @@ function renderSundayTest(container) {
         🔄 Retry Test
       </button>
     </div>`;
+
+  // If there are saved wrong words from a previous attempt, show review option
+  const p = loadProgress();
+  const prevExam = p.examScores[currentWeek];
+  const prevWrong = p.wrongWords[currentWeek];
+  if (prevExam && prevWrong && prevWrong.length > 0) {
+    html += `
+      <div style="margin-top:12px; padding:14px; background:#fff3e0; border:2px solid #ffcc80; border-radius:14px; text-align:center;">
+        <div style="font-size:14px; font-weight:700; color:#e65100; margin-bottom:4px;">
+          📊 Last attempt: ${prevExam.pct}% (${prevExam.score}/${prevExam.total})
+        </div>
+        <div style="font-size:12px; color:#bf360c; margin-bottom:10px;">
+          You had ${prevWrong.length} word${prevWrong.length > 1 ? 's' : ''} wrong — review them below
+        </div>
+        <button class="review-btn" onclick="showSavedReview(${currentWeek})" style="margin-top:0;">
+          📝 Review ${prevWrong.length} Mistake${prevWrong.length > 1 ? 's' : ''} from Last Attempt
+        </button>
+      </div>`;
+  }
 
   container.innerHTML = html;
 }
@@ -1909,9 +2433,76 @@ function submitTest() {
     matchFb.textContent = `${matchedPairs}/5 pairs matched. Review the words you missed.`;
   }
 
-  // Show score
+  // Collect wrong word indices from all question types
+  const wrongWordIndices = [];
+  const weekWords = getWordsForWeek(currentWeek);
+  const weekStart = currentWeek * WORDS_PER_WEEK;
+  
+  // Collect wrong words from fill-in-blanks
+  document.querySelectorAll('[data-type="fill"]').forEach(q => {
+    const input = q.querySelector('.answer-input');
+    if (input && input.classList.contains('wrong')) {
+      const answer = q.dataset.answer;
+      const idx = weekWords.findIndex(w => w.word.toLowerCase() === answer);
+      if (idx >= 0) wrongWordIndices.push(weekStart + idx);
+    }
+  });
+  
+  // Collect wrong words from multiple choice
+  document.querySelectorAll('[data-type="mc"]').forEach(q => {
+    const selected = q.querySelector('.option-btn.selected');
+    if (!selected || selected.dataset.correct !== 'true') {
+      const wordName = q.dataset.answer;
+      const idx = weekWords.findIndex(w => w.word === wordName);
+      if (idx >= 0) wrongWordIndices.push(weekStart + idx);
+    }
+  });
+  
+  // Collect wrong words from true/false
+  document.querySelectorAll('[data-type="tf"]').forEach(q => {
+    const answer = q.dataset.answer;
+    const selected = q.querySelector('.tf-btn.selected');
+    if (!selected || selected.dataset.val !== answer) {
+      // Extract word from the question text
+      const strong = q.querySelector('strong');
+      if (strong) {
+        const wordName = strong.textContent;
+        const idx = weekWords.findIndex(w => w.word === wordName);
+        if (idx >= 0) wrongWordIndices.push(weekStart + idx);
+      }
+    }
+  });
+  
+  // Collect wrong words from synonyms
+  document.querySelectorAll('[data-type="syn"]').forEach(q => {
+    const selected = q.querySelector('.option-btn.selected');
+    if (!selected || selected.dataset.correct !== 'true') {
+      const strong = q.querySelector('strong');
+      if (strong) {
+        const wordName = strong.textContent;
+        const idx = weekWords.findIndex(w => w.word === wordName);
+        if (idx >= 0) wrongWordIndices.push(weekStart + idx);
+      }
+    }
+  });
+  
+  // Collect unmatched words from matching
+  document.querySelectorAll('.match-item.word-side:not(.matched)').forEach(el => {
+    const wordName = el.dataset.matchWord;
+    const idx = weekWords.findIndex(w => w.word === wordName);
+    if (idx >= 0) wrongWordIndices.push(weekStart + idx);
+  });
+  
+  // De-duplicate
+  const uniqueWrong = [...new Set(wrongWordIndices)];
+  
+  // Save to progress
   testState.score = correct;
   testState.total = total;
+  testState.wrongIndices = uniqueWrong;
+  saveExamResult(currentWeek, correct, total, uniqueWrong);
+
+  // Show score
   const pct = Math.round((correct / total) * 100);
   document.getElementById('testScore').style.display = 'block';
   document.getElementById('testScore').textContent = `${pct}%`;
@@ -1924,13 +2515,321 @@ function submitTest() {
 
   document.getElementById('submitTest').style.display = 'none';
   document.getElementById('retryTest').style.display = 'block';
+  
+  // Show Review Mistakes section if there are wrong answers
+  if (uniqueWrong.length > 0) {
+    renderReviewMistakes(uniqueWrong);
+  }
+
+  // Update stats
+  updateStatsUI();
 
   // Scroll to top
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// ============== REVIEW MISTAKES ==============
+function renderReviewMistakes(wrongIndices) {
+  const container = document.getElementById('reviewSection');
+  if (container) container.remove();
+  
+  const section = document.createElement('div');
+  section.id = 'reviewSection';
+  section.className = 'review-section';
+  
+  const wrongWords = wrongIndices.filter(i => i < WORDS_DB.length).map(i => WORDS_DB[i]);
+  
+  let html = `
+    <div class="review-header">
+      <h3>📝 Review Your Mistakes</h3>
+      <p>${wrongWords.length} word${wrongWords.length > 1 ? 's' : ''} to review — study them, then take the mini-test!</p>
+    </div>`;
+  
+  wrongIndices.forEach(idx => {
+    if (idx < WORDS_DB.length) {
+      const w = WORDS_DB[idx];
+      html += renderWordCard(w, idx + 1, idx);
+    }
+  });
+  
+  html += `
+    <button class="action-btn purple" onclick="startMiniTest(${JSON.stringify(wrongIndices)})">
+      🧪 Take Mini-Test on These ${wrongWords.length} Words
+    </button>
+    <button class="review-btn" onclick="retryTest()" style="margin-top:8px;">
+      🔄 Skip to Full Test Retry
+    </button>`;
+  
+  section.innerHTML = html;
+  document.getElementById('mainContent').appendChild(section);
+  
+  // Scroll to review section
+  setTimeout(() => section.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+}
+
+// ============== MINI-TEST ON WRONG WORDS ==============
+let miniTestState = {};
+
+function startMiniTest(wrongIndices) {
+  const validIndices = wrongIndices.filter(i => i < WORDS_DB.length);
+  const words = validIndices.map(i => WORDS_DB[i]);
+  if (words.length === 0) return;
+  
+  miniTestState = { submitted: false, wrongIndices: validIndices, answers: {} };
+  
+  const container = document.getElementById('reviewSection');
+  if (!container) return;
+  
+  // Generate questions — one fill-blank + one MC per word (max 2 questions per word)
+  let html = `
+    <div class="mini-test-header">
+      <h3>🧪 Mini-Test: Your Mistakes</h3>
+      <p>Prove you've learned the ${words.length} word${words.length > 1 ? 's' : ''} you got wrong!</p>
+      <div class="mini-test-score" id="miniScore" style="display:none">0%</div>
+      <div id="miniResultMsg" style="display:none; font-size:14px;"></div>
+    </div>`;
+  
+  // Part A: Fill in blanks for each wrong word
+  html += `
+    <div class="test-section">
+      <div class="test-section-header">📝 Fill in the Blank</div>`;
+  words.forEach((w, i) => {
+    const sentence = w.exEN.replace(/<b>[^<]+<\/b>/, '<span class="blank">______</span>');
+    html += `
+      <div class="test-question" data-type="mini-fill" data-answer="${w.word.toLowerCase()}" data-qid="mf${i}">
+        <div class="question-num">Q${i + 1}</div>
+        <div class="question-text">${sentence}</div>
+        <input type="text" class="answer-input" id="mf${i}" placeholder="Type the word..." autocomplete="off" autocapitalize="none">
+        <div class="feedback" id="mf${i}-fb"></div>
+      </div>`;
+  });
+  html += `</div>`;
+  
+  // Part B: Multiple choice — "What does X mean?"
+  html += `
+    <div class="test-section">
+      <div class="test-section-header">🔤 Choose the Meaning</div>`;
+  
+  // Get some extra words for wrong options from this week
+  const weekWords = getWordsForWeek(currentWeek);
+  
+  words.forEach((w, i) => {
+    const pool = weekWords.filter(x => x.word !== w.word);
+    const wrongOpts = shuffle(pool).slice(0, 3);
+    const options = shuffle([
+      { text: w.def, correct: true },
+      ...wrongOpts.map(x => ({ text: x.def, correct: false }))
+    ]);
+    html += `
+      <div class="test-question" data-type="mini-mc" data-answer="${w.word}" data-qid="mm${i}">
+        <div class="question-num">Q${i + 1}</div>
+        <div class="question-text">What does "<strong>${w.word}</strong>" mean?</div>
+        <div class="options-grid">
+          ${options.map((o, j) => `
+            <button class="option-btn" data-correct="${o.correct}" onclick="selectMiniOption(this, 'mm${i}')">
+              ${String.fromCharCode(65 + j)}) ${o.text}
+            </button>
+          `).join('')}
+        </div>
+        <div class="feedback" id="mm${i}-fb"></div>
+      </div>`;
+  });
+  html += `</div>`;
+  
+  // Part C: German translation — match the German word
+  html += `
+    <div class="test-section">
+      <div class="test-section-header">🇩🇪 Choose the German Translation</div>`;
+  words.forEach((w, i) => {
+    const pool = weekWords.filter(x => x.word !== w.word);
+    const wrongGerman = shuffle(pool).slice(0, 3);
+    const options = shuffle([
+      { text: w.german, correct: true },
+      ...wrongGerman.map(x => ({ text: x.german, correct: false }))
+    ]);
+    html += `
+      <div class="test-question" data-type="mini-de" data-answer="${w.word}" data-qid="md${i}">
+        <div class="question-num">Q${i + 1}</div>
+        <div class="question-text">What is the German translation of "<strong>${w.word}</strong>"?</div>
+        <div class="options-grid">
+          ${options.map((o, j) => `
+            <button class="option-btn" data-correct="${o.correct}" onclick="selectMiniOption(this, 'md${i}')">
+              ${String.fromCharCode(65 + j)}) ${o.text}
+            </button>
+          `).join('')}
+        </div>
+        <div class="feedback" id="md${i}-fb"></div>
+      </div>`;
+  });
+  html += `</div>`;
+  
+  html += `
+    <button class="action-btn purple" id="submitMini" onclick="submitMiniTest()">
+      ✅ Submit Mini-Test
+    </button>
+    <div id="miniAfterButtons" style="display:none">
+      <button class="action-btn submit" onclick="retryTest()" style="margin-top:8px;">
+        🔄 Retry Full Weekly Test
+      </button>
+    </div>`;
+  
+  container.innerHTML = html;
+  container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function selectMiniOption(btn, qid) {
+  if (miniTestState.submitted) return;
+  const parent = btn.closest('.test-question');
+  parent.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  miniTestState.answers[qid] = btn;
+}
+
+function submitMiniTest() {
+  miniTestState.submitted = true;
+  let correct = 0;
+  let total = 0;
+  const stillWrongIndices = [];
+  const validIndices = miniTestState.wrongIndices;
+  const words = validIndices.map(i => WORDS_DB[i]);
+  
+  // Track per-word correctness (all 3 parts must be right)
+  const wordCorrect = new Array(words.length).fill(true);
+  
+  // Grade fill-in-blanks
+  words.forEach((w, i) => {
+    const input = document.getElementById(`mf${i}`);
+    if (!input) return;
+    const question = input.closest('.test-question');
+    const answer = question.dataset.answer;
+    const userAnswer = input.value.trim().toLowerCase();
+    const fb = document.getElementById(`mf${i}-fb`);
+    total++;
+    if (userAnswer === answer) {
+      correct++;
+      input.classList.add('correct');
+      fb.className = 'feedback correct';
+      fb.textContent = '✅ Correct!';
+    } else {
+      input.classList.add('wrong');
+      fb.className = 'feedback wrong';
+      fb.textContent = `❌ Correct answer: ${answer}`;
+      wordCorrect[i] = false;
+    }
+    input.disabled = true;
+  });
+  
+  // Grade MC (meaning)
+  document.querySelectorAll('[data-type="mini-mc"]').forEach((q, i) => {
+    total++;
+    const fb = document.getElementById(q.dataset.qid + '-fb');
+    const selected = q.querySelector('.option-btn.selected');
+    q.querySelectorAll('.option-btn').forEach(b => {
+      b.disabled = true;
+      if (b.dataset.correct === 'true') b.classList.add('correct');
+    });
+    if (selected && selected.dataset.correct === 'true') {
+      correct++;
+      fb.className = 'feedback correct';
+      fb.textContent = '✅ Correct!';
+    } else {
+      if (selected) selected.classList.add('wrong');
+      fb.className = 'feedback wrong';
+      fb.textContent = '❌ Wrong answer.';
+      wordCorrect[i] = false;
+    }
+  });
+  
+  // Grade German translation
+  document.querySelectorAll('[data-type="mini-de"]').forEach((q, i) => {
+    total++;
+    const fb = document.getElementById(q.dataset.qid + '-fb');
+    const selected = q.querySelector('.option-btn.selected');
+    q.querySelectorAll('.option-btn').forEach(b => {
+      b.disabled = true;
+      if (b.dataset.correct === 'true') b.classList.add('correct');
+    });
+    if (selected && selected.dataset.correct === 'true') {
+      correct++;
+      fb.className = 'feedback correct';
+      fb.textContent = '✅ Richtig!';
+    } else {
+      if (selected) selected.classList.add('wrong');
+      fb.className = 'feedback wrong';
+      fb.textContent = '❌ Falsche Antwort.';
+      wordCorrect[i] = false;
+    }
+  });
+  
+  // Collect words still wrong
+  wordCorrect.forEach((ok, i) => {
+    if (!ok) stillWrongIndices.push(validIndices[i]);
+  });
+  
+  // Show score
+  const pct = Math.round((correct / total) * 100);
+  document.getElementById('miniScore').style.display = 'block';
+  document.getElementById('miniScore').textContent = `${pct}%`;
+  
+  const resultMsg = document.getElementById('miniResultMsg');
+  resultMsg.style.display = 'block';
+  
+  const passed = stillWrongIndices.length === 0;
+  
+  if (passed) {
+    resultMsg.innerHTML = `<div class="mini-test-result pass">
+      🎉 Perfect! You've mastered all ${words.length} words!<br>
+      <span style="font-size:13px; font-weight:400;">You're ready to retry the full test.</span>
+    </div>`;
+  } else {
+    resultMsg.innerHTML = `<div class="mini-test-result fail">
+      ${correct}/${total} correct — ${stillWrongIndices.length} word${stillWrongIndices.length > 1 ? 's' : ''} still need work.<br>
+      <span style="font-size:13px; font-weight:400;">Review them again and retake the mini-test.</span>
+    </div>`;
+  }
+  
+  // Update saved wrong words
+  const p = loadProgress();
+  p.wrongWords[currentWeek] = stillWrongIndices;
+  saveProgress(p);
+  updateStatsUI();
+  
+  // Show appropriate buttons
+  document.getElementById('submitMini').style.display = 'none';
+  const afterBtns = document.getElementById('miniAfterButtons');
+  afterBtns.style.display = 'block';
+  
+  if (!passed) {
+    afterBtns.innerHTML = `
+      <button class="action-btn purple" onclick="renderReviewMistakes(${JSON.stringify(stillWrongIndices)})" style="margin-top:8px;">
+        📝 Review ${stillWrongIndices.length} Remaining Mistake${stillWrongIndices.length > 1 ? 's' : ''} Again
+      </button>
+      <button class="review-btn" onclick="retryTest()" style="margin-top:8px;">
+        🔄 Skip to Full Test Retry
+      </button>`;
+  } else {
+    afterBtns.innerHTML = `
+      <button class="action-btn submit" onclick="retryTest()" style="margin-top:8px;">
+        🔄 Retry Full Weekly Test — You're Ready! 🎉
+      </button>`;
+  }
+  
+  // Scroll to top of mini test
+  document.querySelector('.mini-test-header').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Show review from saved progress (for past weeks)
+function showSavedReview(week) {
+  const p = loadProgress();
+  const wrongIndices = p.wrongWords[week];
+  if (wrongIndices && wrongIndices.length > 0) {
+    renderReviewMistakes(wrongIndices);
+  }
+}
+
 function retryTest() {
   testState = {};
+  miniTestState = {};
   matchSelected = null;
   renderContent();
 }
@@ -2006,7 +2905,23 @@ if ('serviceWorker' in navigator) {
 // ============== INIT ==============
 window.addEventListener('DOMContentLoaded', () => {
   initTTS();
+  
+  // Restore last position from saved progress
+  const p = loadProgress();
+  if (p.lastWeek || p.lastDay) {
+    currentWeek = Math.min(p.lastWeek, totalWeeks - 1);
+    currentDay = p.lastDay;
+  }
+  
   renderAll();
+  
+  // Auto-open stats panel if there's any progress
+  if (p.wordsViewed.length > 0) {
+    const body = document.getElementById('statsBody');
+    const arrow = document.getElementById('statsArrow');
+    if (body) body.classList.add('open');
+    if (arrow) arrow.classList.add('open');
+  }
 });
 </script>
 </body>
