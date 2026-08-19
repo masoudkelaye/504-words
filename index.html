@@ -11,6 +11,10 @@
 <meta name="apple-mobile-web-app-title" content="504 Words">
 <link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<!-- Firebase SDK (free tier) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
   :root {
     --primary: #1a73e8;
@@ -1205,9 +1209,9 @@
 <!-- Account Bar -->
 <div class="account-bar" id="accountBar">
   <div class="account-avatar" id="accountAvatar">?</div>
-  <div class="account-name" id="accountName">No user</div>
+  <div class="account-name" id="accountName">Not signed in</div>
   <button class="invite-btn" onclick="inviteFriend()">🎁 Invite</button>
-  <button class="account-btn" onclick="openAccountModal()">👤 Switch</button>
+  <button class="account-btn" id="authBtn" onclick="handleAuth()">🔑 Sign In</button>
 </div>
 
 <!-- Streak Banner -->
@@ -2007,156 +2011,182 @@ let currentDay = 0; // 0-5 = Mon-Sat, 6 = Sunday
 let totalWeeks = Math.ceil(WORDS_DB.length / WORDS_PER_WEEK);
 let testState = {};
 
-// ============== ACCOUNT MANAGEMENT ==============
-const ACCOUNTS_KEY = 'vocab504_accounts';
-const ACTIVE_KEY = 'vocab504_active_user';
-const AVATAR_COLORS = ['#1a73e8','#e53935','#43a047','#fb8c00','#8e24aa','#00897b','#d81b60','#5c6bc0','#f4511e','#00acc1'];
+// ============== FIREBASE AUTH + CLOUD SAVE ==============
+// Firebase config — REPLACE THESE with your own Firebase project values
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyATbW1xsk__vXZooKKl4oWMdFr1hc8NTRs",
+  authDomain: "vocab-504-words.firebaseapp.com",
+  projectId: "vocab-504-words",
+  storageBucket: "vocab-504-words.firebasestorage.app",
+  messagingSenderId: "617252484176",
+  appId: "1:617252484176:web:ac41bbbe63d3f72e5ecd55"
+};
 
-function getAccounts() {
-  try { return JSON.parse(localStorage.getItem(ACCOUNTS_KEY)) || []; } catch(e) { return []; }
-}
-function saveAccounts(list) {
-  try { localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(list)); } catch(e) {}
-}
-function getActiveUserId() {
-  return localStorage.getItem(ACTIVE_KEY) || null;
-}
-function setActiveUserId(id) {
-  localStorage.setItem(ACTIVE_KEY, id);
-}
+let firebaseApp = null;
+let firebaseAuth = null;
+let firebaseDb = null;
+let currentUser = null;
+let cloudSyncEnabled = false;
+let syncDebounceTimer = null;
 
-function createAccount(name) {
-  const accounts = getAccounts();
-  const id = 'u_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
-  const color = AVATAR_COLORS[accounts.length % AVATAR_COLORS.length];
-  const initial = name.trim().charAt(0).toUpperCase();
-  accounts.push({ id, name: name.trim(), color, initial, created: Date.now() });
-  saveAccounts(accounts);
-  setActiveUserId(id);
-  currentWeek = 0;
-  currentDay = 0;
-  return id;
-}
+function initFirebase() {
+  try {
+    if (typeof firebase === 'undefined') { console.log('Firebase SDK not loaded'); return; }
+    firebaseApp = firebase.initializeApp(FIREBASE_CONFIG);
+    firebaseAuth = firebase.auth();
+    firebaseDb = firebase.firestore();
+    // Enable offline persistence
+    firebaseDb.enablePersistence({ synchronizeTabs: true }).catch(() => {});
+    cloudSyncEnabled = true;
 
-function deleteAccount(id) {
-  let accounts = getAccounts();
-  const acct = accounts.find(a => a.id === id);
-  if (!acct) return;
-  if (!confirm(`Delete "${acct.name}" and all their progress?`)) return;
-  accounts = accounts.filter(a => a.id !== id);
-  saveAccounts(accounts);
-  try { localStorage.removeItem('vocab504_' + id); } catch(e) {}
-  if (getActiveUserId() === id) {
-    if (accounts.length > 0) {
-      switchToAccount(accounts[0].id);
-    } else {
-      localStorage.removeItem(ACTIVE_KEY);
-      openAccountModal(true);
-    }
+    firebaseAuth.onAuthStateChanged(user => {
+      currentUser = user;
+      updateAccountBar();
+      if (user) {
+        loadCloudProgress().then(() => {
+          restorePosition();
+          renderAll();
+          updateStreakBanner();
+          showReminderBanner();
+        });
+      } else {
+        // Not signed in — use local only
+        restorePosition();
+        renderAll();
+        updateStreakBanner();
+        showReminderBanner();
+        // Show sign-in prompt after short delay
+        setTimeout(() => showSignInPrompt(), 600);
+      }
+    });
+  } catch(e) {
+    console.log('Firebase init failed, using local storage only:', e);
+    cloudSyncEnabled = false;
   }
 }
 
-function switchToAccount(id) {
-  setActiveUserId(id);
-  currentWeek = 0;
-  currentDay = 0;
-  const p = loadProgress();
-  if (p.lastWeek || p.lastDay) {
-    currentWeek = Math.min(p.lastWeek, totalWeeks - 1);
-    currentDay = p.lastDay;
-  }
-  updateAccountBar();
-  renderAll();
-  closeAccountModal();
-}
-
-function getActiveAccount() {
-  const id = getActiveUserId();
-  if (!id) return null;
-  return getAccounts().find(a => a.id === id) || null;
-}
-
-function updateAccountBar() {
-  const acct = getActiveAccount();
-  const avatar = document.getElementById('accountAvatar');
-  const name = document.getElementById('accountName');
-  if (acct) {
-    avatar.textContent = acct.initial;
-    avatar.style.background = acct.color;
-    name.textContent = acct.name;
+// ============== AUTH FUNCTIONS ==============
+function handleAuth() {
+  if (currentUser) {
+    // Already signed in — show account menu
+    showAccountMenu();
   } else {
-    avatar.textContent = '?';
-    avatar.style.background = 'rgba(255,255,255,0.2)';
-    name.textContent = 'No user selected';
+    signInWithGoogle();
   }
 }
 
-// ============== ACCOUNT MODAL ==============
-function openAccountModal(forceCreate) {
+function signInWithGoogle() {
+  if (!firebaseAuth) {
+    alert('Firebase is not configured yet. See the setup guide in README.');
+    return;
+  }
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebaseAuth.signInWithPopup(provider).catch(err => {
+    if (err.code === 'auth/popup-blocked') {
+      // Try redirect instead
+      firebaseAuth.signInWithRedirect(provider);
+    } else if (err.code !== 'auth/popup-closed-by-user') {
+      console.error('Sign-in error:', err);
+      alert('Sign-in failed: ' + err.message);
+    }
+  });
+}
+
+function signOut() {
+  if (!firebaseAuth) return;
+  if (!confirm('Sign out? Your progress is saved in the cloud.')) return;
+  firebaseAuth.signOut().then(() => {
+    currentUser = null;
+    updateAccountBar();
+    renderAll();
+  });
+}
+
+function showAccountMenu() {
   closeAccountModal();
-  const accounts = getAccounts();
-  const activeId = getActiveUserId();
-  
   const overlay = document.createElement('div');
   overlay.id = 'accountModal';
   overlay.className = 'modal-overlay';
-  if (!forceCreate) overlay.onclick = (e) => { if (e.target === overlay) closeAccountModal(); };
-  
-  let listHtml = '';
-  accounts.forEach(a => {
-    const p = loadProgressForUser(a.id);
-    const wordsSeen = p.wordsViewed ? p.wordsViewed.length : 0;
-    const examsDone = p.examScores ? Object.keys(p.examScores).length : 0;
-    const isActive = a.id === activeId;
-    listHtml += `
-      <div class="account-list-item ${isActive ? 'active' : ''}" onclick="switchToAccount('${a.id}')">
-        <div class="ali-avatar" style="background:${a.color}">${a.initial}</div>
-        <div class="ali-info">
-          <div class="ali-name">${a.name}${isActive ? ' ✓' : ''}</div>
-          <div class="ali-stats">${wordsSeen} words · ${examsDone} exams completed</div>
-        </div>
-        <button class="ali-delete" onclick="event.stopPropagation(); deleteAccount('${a.id}')" title="Delete">🗑️</button>
-      </div>`;
-  });
-  
-  if (accounts.length === 0) {
-    listHtml = `<div style="text-align:center; padding:20px; color:var(--text-light);">
-      <div style="font-size:40px; margin-bottom:8px;">👋</div>
-      <div style="font-size:15px; font-weight:600;">Welcome!</div>
-      <div style="font-size:13px;">Create your profile to start learning.</div>
-    </div>`;
-  }
-  
+  overlay.onclick = (e) => { if (e.target === overlay) closeAccountModal(); };
+
+  const user = currentUser;
+  const p = loadProgress();
+  const wordsSeen = p.wordsViewed ? p.wordsViewed.length : 0;
+  const examsDone = p.examScores ? Object.keys(p.examScores).length : 0;
+  const streak = p.currentStreak || 0;
+  const photoUrl = user.photoURL || '';
+  const photoHtml = photoUrl
+    ? `<img src="${photoUrl}" style="width:60px;height:60px;border-radius:50%;border:3px solid var(--primary);">`
+    : `<div style="width:60px;height:60px;border-radius:50%;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:800;">${(user.displayName||'U').charAt(0).toUpperCase()}</div>`;
+
   overlay.innerHTML = `
     <div class="modal">
       <div class="modal-header">
-        <h2>👤 User Profiles</h2>
-        <p>Each person gets their own progress & scores</p>
+        <div style="margin-bottom:10px;">${photoHtml}</div>
+        <h2>${user.displayName || 'User'}</h2>
+        <p style="font-size:12px;">${user.email || ''}</p>
       </div>
       <div class="modal-body">
-        ${listHtml}
-      </div>
-      <div class="modal-footer">
-        <div style="font-size:12px; font-weight:600; color:var(--text-light); margin-bottom:8px;">➕ Add New User</div>
-        <div class="new-account-form">
-          <input type="text" id="newAccountName" placeholder="Enter name..." maxlength="20"
-            onkeydown="if(event.key==='Enter')addNewAccount()">
-          <button onclick="addNewAccount()">Create</button>
+        <div class="stats-panel" style="grid-template-columns:1fr 1fr 1fr; padding:8px 0; border:none;">
+          <div class="stat-card"><div class="stat-icon">📖</div><div class="stat-value">${wordsSeen}</div><div class="stat-label">Words</div></div>
+          <div class="stat-card green"><div class="stat-icon">📝</div><div class="stat-value">${examsDone}</div><div class="stat-label">Exams</div></div>
+          <div class="stat-card" style="border-color:#ff9100;"><div class="stat-icon">🔥</div><div class="stat-value" style="color:#ff6d00;">${streak}</div><div class="stat-label">Streak</div></div>
+        </div>
+        <div style="text-align:center; padding:8px 0; font-size:12px; color:var(--success);">
+          ☁️ Progress saved to Google Cloud
         </div>
       </div>
+      <div class="modal-footer" style="display:flex; gap:8px;">
+        <button onclick="closeAccountModal()" style="flex:1; padding:12px; border:2px solid var(--border); border-radius:12px; background:white; font-size:14px; font-weight:600; cursor:pointer;">Close</button>
+        <button onclick="closeAccountModal(); signOut();" style="flex:1; padding:12px; border:2px solid var(--error); border-radius:12px; background:white; color:var(--error); font-size:14px; font-weight:600; cursor:pointer;">Sign Out</button>
+      </div>
     </div>`;
-  
+
   document.body.appendChild(overlay);
-  setTimeout(() => document.getElementById('newAccountName')?.focus(), 200);
 }
 
-function addNewAccount() {
-  const input = document.getElementById('newAccountName');
-  const name = input?.value.trim();
-  if (!name) { input?.focus(); return; }
-  if (name.length < 1) return;
-  const id = createAccount(name);
-  switchToAccount(id);
+function showSignInPrompt() {
+  if (currentUser) return;
+  closeAccountModal();
+  const overlay = document.createElement('div');
+  overlay.id = 'accountModal';
+  overlay.className = 'modal-overlay';
+
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="modal-header">
+        <div style="font-size:48px; margin-bottom:8px;">📚</div>
+        <h2>504 Essential Words</h2>
+        <p>Sign in to save your progress in the cloud</p>
+      </div>
+      <div class="modal-body" style="text-align:center;">
+        <button onclick="closeAccountModal(); signInWithGoogle();" style="
+          display:flex; align-items:center; justify-content:center; gap:10px;
+          width:100%; padding:14px; border:2px solid var(--border); border-radius:14px;
+          background:white; font-size:15px; font-weight:700; cursor:pointer;
+          transition:all 0.2s; margin-bottom:10px;
+        ">
+          <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Sign in with Google
+        </button>
+        <button onclick="closeAccountModal(); skipSignIn();" style="
+          width:100%; padding:12px; border:none; background:none;
+          color:var(--text-light); font-size:13px; cursor:pointer;
+        ">
+          Skip for now (progress saved locally only)
+        </button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+}
+
+function skipSignIn() {
+  // Continue with local-only storage
+  restorePosition();
+  renderAll();
+  updateStreakBanner();
+  showReminderBanner();
 }
 
 function closeAccountModal() {
@@ -2164,17 +2194,41 @@ function closeAccountModal() {
   if (m) m.remove();
 }
 
-// ============== PROGRESS PERSISTENCE (per-user) ==============
-function getStorageKey() {
-  const id = getActiveUserId();
-  return id ? 'vocab504_' + id : 'vocab504_progress';
+function updateAccountBar() {
+  const avatar = document.getElementById('accountAvatar');
+  const name = document.getElementById('accountName');
+  const btn = document.getElementById('authBtn');
+
+  if (currentUser) {
+    const photoUrl = currentUser.photoURL;
+    if (photoUrl) {
+      avatar.innerHTML = `<img src="${photoUrl}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;
+      avatar.style.background = 'transparent';
+      avatar.style.overflow = 'hidden';
+    } else {
+      avatar.textContent = (currentUser.displayName || 'U').charAt(0).toUpperCase();
+      avatar.style.background = '#1a73e8';
+      avatar.innerHTML = avatar.textContent;
+    }
+    name.textContent = currentUser.displayName || currentUser.email || 'User';
+    btn.textContent = '👤 Account';
+    btn.onclick = () => showAccountMenu();
+  } else {
+    avatar.textContent = '?';
+    avatar.style.background = 'rgba(255,255,255,0.2)';
+    avatar.innerHTML = '?';
+    name.textContent = 'Not signed in';
+    btn.textContent = '🔑 Sign In';
+    btn.onclick = () => signInWithGoogle();
+  }
 }
 
-function loadProgress() {
-  try {
-    const data = JSON.parse(localStorage.getItem(getStorageKey()));
-    if (data) return data;
-  } catch(e) {}
+// ============== CLOUD PROGRESS (Firestore) ==============
+function getStorageKey() {
+  return currentUser ? 'vocab504_' + currentUser.uid : 'vocab504_local';
+}
+
+function defaultProgress() {
   return {
     wordsViewed: [],
     daysCompleted: [],
@@ -2184,30 +2238,138 @@ function loadProgress() {
     totalWrong: 0,
     lastWeek: 0,
     lastDay: 0,
-    daysFinished: [],       // explicitly finished days ["0-0","0-1",...]
-    streakDates: [],        // dates studied ["2026-06-20","2026-06-21",...]
+    daysFinished: [],
+    streakDates: [],
     currentStreak: 0,
     bestStreak: 0,
     reminderDismissed: false
   };
 }
 
-function loadProgressForUser(userId) {
+function loadProgress() {
   try {
-    const data = JSON.parse(localStorage.getItem('vocab504_' + userId));
+    const data = JSON.parse(localStorage.getItem(getStorageKey()));
     if (data) return data;
   } catch(e) {}
-  return { wordsViewed: [], daysCompleted: [], daysFinished: [], examScores: {}, wrongWords: {}, totalCorrect: 0, totalWrong: 0, lastWeek: 0, lastDay: 0, streakDates: [], currentStreak: 0, bestStreak: 0, reminderDismissed: false };
+  return defaultProgress();
 }
 
 function saveProgress(p) {
-  try {
-    localStorage.setItem(getStorageKey(), JSON.stringify(p));
-  } catch(e) {}
+  // Always save locally (instant)
+  try { localStorage.setItem(getStorageKey(), JSON.stringify(p)); } catch(e) {}
+
+  // Debounced cloud sync (avoid too many writes)
+  if (cloudSyncEnabled && currentUser) {
+    clearTimeout(syncDebounceTimer);
+    syncDebounceTimer = setTimeout(() => syncToCloud(p), 2000);
+  }
 }
 
 function getProgress() {
   return loadProgress();
+}
+
+async function syncToCloud(p) {
+  if (!firebaseDb || !currentUser) return;
+  try {
+    await firebaseDb.collection('users').doc(currentUser.uid).set({
+      progress: JSON.stringify(p),
+      displayName: currentUser.displayName || '',
+      email: currentUser.email || '',
+      lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch(e) {
+    console.log('Cloud sync failed (will retry):', e.message);
+  }
+}
+
+async function loadCloudProgress() {
+  if (!firebaseDb || !currentUser) return;
+  try {
+    const doc = await firebaseDb.collection('users').doc(currentUser.uid).get();
+    if (doc.exists && doc.data().progress) {
+      const cloudData = JSON.parse(doc.data().progress);
+      const localData = loadProgress();
+
+      // Merge: use whichever has more progress
+      const merged = mergeProgress(localData, cloudData);
+      localStorage.setItem(getStorageKey(), JSON.stringify(merged));
+    } else {
+      // No cloud data — push local data to cloud
+      const localData = loadProgress();
+      if (localData.wordsViewed && localData.wordsViewed.length > 0) {
+        await syncToCloud(localData);
+      }
+      // Also migrate any anonymous local data
+      migrateLocalData();
+    }
+  } catch(e) {
+    console.log('Cloud load failed, using local:', e.message);
+  }
+}
+
+function mergeProgress(local, cloud) {
+  // Pick the one with more progress (more words viewed)
+  const localWords = (local.wordsViewed || []).length;
+  const cloudWords = (cloud.wordsViewed || []).length;
+
+  if (cloudWords > localWords) {
+    return cloud;
+  } else if (localWords > cloudWords) {
+    return local;
+  }
+  // Equal — prefer cloud (most recently synced from another device)
+  return cloud;
+}
+
+function migrateLocalData() {
+  // Migrate old localStorage data to the new user
+  try {
+    // Check for old-format data
+    const keys = ['vocab504_progress', 'vocab504_local'];
+    for (const key of keys) {
+      const data = JSON.parse(localStorage.getItem(key));
+      if (data && data.wordsViewed && data.wordsViewed.length > 0 && currentUser) {
+        const userKey = 'vocab504_' + currentUser.uid;
+        const existing = JSON.parse(localStorage.getItem(userKey) || 'null');
+        if (!existing || (existing.wordsViewed || []).length === 0) {
+          localStorage.setItem(userKey, JSON.stringify(data));
+          syncToCloud(data);
+        }
+        break;
+      }
+    }
+    // Also check old per-user accounts
+    const oldAccounts = JSON.parse(localStorage.getItem('vocab504_accounts') || '[]');
+    if (oldAccounts.length > 0 && currentUser) {
+      // Find the account with the most progress
+      let bestData = null;
+      let bestCount = 0;
+      for (const acct of oldAccounts) {
+        const d = JSON.parse(localStorage.getItem('vocab504_' + acct.id) || 'null');
+        if (d && (d.wordsViewed || []).length > bestCount) {
+          bestData = d;
+          bestCount = (d.wordsViewed || []).length;
+        }
+      }
+      if (bestData) {
+        const userKey = 'vocab504_' + currentUser.uid;
+        const existing = JSON.parse(localStorage.getItem(userKey) || 'null');
+        if (!existing || (existing.wordsViewed || []).length < bestCount) {
+          localStorage.setItem(userKey, JSON.stringify(bestData));
+          syncToCloud(bestData);
+        }
+      }
+    }
+  } catch(e) {}
+}
+
+function restorePosition() {
+  const p = loadProgress();
+  if (p.lastWeek || p.lastDay) {
+    currentWeek = Math.min(p.lastWeek || 0, totalWeeks - 1);
+    currentDay = p.lastDay || 0;
+  }
 }
 
 function markDayViewed(week, day) {
@@ -2520,13 +2682,15 @@ function saveExamResult(week, score, total, wrongIndices) {
 }
 
 function resetProgress() {
-  const acct = getActiveAccount();
-  const who = acct ? `"${acct.name}"` : 'this user';
+  const who = currentUser ? `"${currentUser.displayName}"` : 'your profile';
   if (confirm(`🗑️ Reset all progress for ${who}? This cannot be undone!`)) {
-    localStorage.removeItem(getStorageKey());
+    const emptyData = defaultProgress();
+    localStorage.setItem(getStorageKey(), JSON.stringify(emptyData));
+    if (cloudSyncEnabled && currentUser) syncToCloud(emptyData);
     currentWeek = 0;
     currentDay = 0;
     updateStatsUI();
+    updateStreakBanner();
     renderAll();
   }
 }
@@ -2638,7 +2802,7 @@ function speak(text, lang, btnEl) {
   const utter = new SpeechSynthesisUtterance(cleanText);
   const voice = getVoice(lang);
   if (voice) utter.voice = voice;
-  utter.lang = lang === 'en' ? 'en-GB' : lang === 'de' ? 'de-DE' : lang;
+  utter.lang = lang === 'en' ? 'en-US' : lang === 'de' ? 'de-DE' : lang;
   utter.rate = 0.85;
   utter.pitch = 1;
 
@@ -3815,68 +3979,31 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('DOMContentLoaded', () => {
   initTTS();
   
-  // Migrate old single-user data if exists
-  migrateOldData();
-  
-  // Check if there's an active user
-  const accounts = getAccounts();
-  const activeId = getActiveUserId();
-  
-  if (accounts.length === 0 || !activeId || !accounts.find(a => a.id === activeId)) {
-    // No users or invalid active user — show account picker
-    if (accounts.length > 0) {
-      // Have accounts but no active one — just pick first
-      switchToAccount(accounts[0].id);
-    } else {
-      // No accounts at all — show welcome modal
-      renderAll();
-      updateAccountBar();
-      setTimeout(() => openAccountModal(true), 400);
-      return;
-    }
+  // Try to initialize Firebase (if SDK is loaded)
+  if (typeof firebase !== 'undefined') {
+    initFirebase();
+    // Firebase onAuthStateChanged will handle the rest
+  } else {
+    // No Firebase SDK — pure local mode
+    cloudSyncEnabled = false;
+    updateAccountBar();
+    restorePosition();
+    renderAll();
+    updateStreakBanner();
+    showReminderBanner();
   }
-  
-  updateAccountBar();
-  
-  // Restore last position from saved progress
-  const p = loadProgress();
-  if (p.lastWeek || p.lastDay) {
-    currentWeek = Math.min(p.lastWeek, totalWeeks - 1);
-    currentDay = p.lastDay;
-  }
-  
-  renderAll();
   
   // Auto-open stats panel if there's any progress
-  if (p.wordsViewed.length > 0) {
-    const body = document.getElementById('statsBody');
-    const arrow = document.getElementById('statsArrow');
-    if (body) body.classList.add('open');
-    if (arrow) arrow.classList.add('open');
-  }
-  
-  // Show streak banner
-  updateStreakBanner();
-  
-  // Show reminder banner if not dismissed
-  showReminderBanner();
-});
-
-// Migrate data from old single-user storage to new per-user system
-function migrateOldData() {
-  const accounts = getAccounts();
-  if (accounts.length > 0) return; // Already migrated
-  
-  try {
-    const oldData = JSON.parse(localStorage.getItem('vocab504_progress'));
-    if (oldData && oldData.wordsViewed && oldData.wordsViewed.length > 0) {
-      // There's old progress — create an account for it
-      const id = createAccount('My Profile');
-      localStorage.setItem('vocab504_' + id, JSON.stringify(oldData));
-      localStorage.removeItem('vocab504_progress');
+  setTimeout(() => {
+    const p = loadProgress();
+    if (p.wordsViewed && p.wordsViewed.length > 0) {
+      const body = document.getElementById('statsBody');
+      const arrow = document.getElementById('statsArrow');
+      if (body) body.classList.add('open');
+      if (arrow) arrow.classList.add('open');
     }
-  } catch(e) {}
-}
+  }, 500);
+});
 </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0ea24a1a8aeb570',t:'MTc4MTk1MTg5Nw=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</body>
 </html>
