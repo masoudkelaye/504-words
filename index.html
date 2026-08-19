@@ -1026,6 +1026,86 @@
     color: white;
   }
 
+  /* Settings gear button */
+  .account-bar .settings-btn {
+    padding: 4px 10px;
+    border: 1.5px solid rgba(255,255,255,0.4);
+    border-radius: 15px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .account-bar .settings-btn:hover {
+    background: rgba(255,255,255,0.25);
+  }
+
+  /* Language settings panel */
+  .lang-settings {
+    padding: 14px 18px;
+    background: white;
+    border-bottom: 1px solid var(--border);
+  }
+  .lang-settings-title {
+    font-size: 12px; font-weight: 700; color: var(--text-light);
+    text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .lang-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .lang-row:last-child { border-bottom: none; }
+  .lang-row .lang-flag { font-size: 20px; width: 28px; text-align: center; }
+  .lang-row .lang-name { flex: 1; font-size: 14px; font-weight: 600; }
+  .lang-row .lang-desc { font-size: 11px; color: var(--text-light); }
+  /* Toggle switch */
+  .toggle-switch {
+    position: relative;
+    width: 44px; height: 24px;
+    background: #ccc; border-radius: 12px;
+    cursor: pointer; transition: background 0.3s;
+    flex-shrink: 0;
+  }
+  .toggle-switch.on { background: var(--primary); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute; top: 2px; left: 2px;
+    width: 20px; height: 20px;
+    background: white; border-radius: 50%;
+    transition: transform 0.3s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .toggle-switch.on::after { transform: translateX(20px); }
+  /* Accent selector */
+  .accent-selector {
+    display: flex; gap: 6px;
+  }
+  .accent-btn {
+    padding: 5px 12px; border: 2px solid var(--border);
+    border-radius: 20px; background: white; font-size: 12px;
+    font-weight: 600; cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .accent-btn:hover { border-color: var(--primary); }
+  .accent-btn.active {
+    border-color: var(--primary); background: var(--en-bg); color: var(--primary);
+  }
+  .lang-settings-body { display: none; }
+  .lang-settings-body.open { display: block; }
+  .lang-toggle-bar {
+    display: flex; align-items: center; justify-content: center;
+    gap: 6px; padding: 6px; background: white;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer; font-size: 12px; color: var(--text-light);
+    font-weight: 600; user-select: none; transition: background 0.2s;
+  }
+  .lang-toggle-bar:hover { background: var(--bg); }
+
   /* Invite toast */
   .invite-toast {
     position: fixed;
@@ -1212,6 +1292,49 @@
   <div class="account-name" id="accountName">Not signed in</div>
   <button class="invite-btn" onclick="inviteFriend()">🎁 Invite</button>
   <button class="account-btn" id="authBtn" onclick="handleAuth()">🔑 Sign In</button>
+</div>
+
+<!-- Language Settings Toggle -->
+<div class="lang-toggle-bar" onclick="toggleLangSettings()">
+  <span>⚙️ Language & Accent</span>
+  <span class="toggle-arrow" id="langArrow">▼</span>
+</div>
+<div class="lang-settings-body" id="langSettingsBody">
+  <div class="lang-settings">
+    <div class="lang-settings-title">🗣️ English Accent</div>
+    <div class="accent-selector" id="accentSelector">
+      <button class="accent-btn active" id="accentUS" onclick="setAccent('en-US')">🇺🇸 American</button>
+      <button class="accent-btn" id="accentGB" onclick="setAccent('en-GB')">🇬🇧 British</button>
+    </div>
+
+    <div class="lang-settings-title" style="margin-top:14px;">📖 Visible Sections</div>
+
+    <div class="lang-row">
+      <span class="lang-flag" id="enFlag">🇺🇸</span>
+      <div style="flex:1"><div class="lang-name">English Definition</div><div class="lang-desc">Word meaning + example sentence</div></div>
+      <div class="toggle-switch on" onclick="toggleLang('en');" id="toggleEN"></div>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇩🇪</span>
+      <div style="flex:1"><div class="lang-name">Deutsch</div><div class="lang-desc">German translation + example</div></div>
+      <div class="toggle-switch on" onclick="toggleLang('de');" id="toggleDE"></div>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇮🇷</span>
+      <div style="flex:1"><div class="lang-name">فارسی</div><div class="lang-desc">Farsi / Persian translation</div></div>
+      <div class="toggle-switch on" onclick="toggleLang('fa');" id="toggleFA"></div>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag" id="enExFlag">🇺🇸</span>
+      <div style="flex:1"><div class="lang-name">English Example</div><div class="lang-desc">Example sentence in English</div></div>
+      <div class="toggle-switch on" onclick="toggleLang('enEx');" id="toggleENEX"></div>
+    </div>
+    <div class="lang-row">
+      <span class="lang-flag">🇩🇪</span>
+      <div style="flex:1"><div class="lang-name">German Example</div><div class="lang-desc">Beispielsatz auf Deutsch</div></div>
+      <div class="toggle-switch on" onclick="toggleLang('deEx');" id="toggleDEEX"></div>
+    </div>
+  </div>
 </div>
 
 <!-- Streak Banner -->
@@ -2014,12 +2137,12 @@ let testState = {};
 // ============== FIREBASE AUTH + CLOUD SAVE ==============
 // Firebase config — REPLACE THESE with your own Firebase project values
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyATbW1xsk__vXZooKKl4oWMdFr1hc8NTRs",
-  authDomain: "vocab-504-words.firebaseapp.com",
-  projectId: "vocab-504-words",
-  storageBucket: "vocab-504-words.firebasestorage.app",
-  messagingSenderId: "617252484176",
-  appId: "1:617252484176:web:ac41bbbe63d3f72e5ecd55"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 
 let firebaseApp = null;
@@ -2784,9 +2907,15 @@ function initTTS() {
 }
 
 function getVoice(lang) {
-  const langMap = { 'en': 'en', 'de': 'de' };
-  const l = langMap[lang] || lang;
-  // Try exact match first, then prefix match
+  if (lang === 'en') {
+    const accent = getLangPref().accent || 'en-US';
+    // Try exact accent match first
+    let v = voices.find(v => v.lang === accent);
+    if (!v) v = voices.find(v => v.lang.startsWith(accent.split('-')[0]) && v.localService);
+    if (!v) v = voices.find(v => v.lang.startsWith('en'));
+    return v || null;
+  }
+  const l = lang === 'de' ? 'de' : lang;
   let v = voices.find(v => v.lang.startsWith(l) && v.localService);
   if (!v) v = voices.find(v => v.lang.startsWith(l));
   return v || null;
@@ -2796,13 +2925,20 @@ function speak(text, lang, btnEl) {
   if (!ttsAvailable) return;
   speechSynthesis.cancel();
 
-  // Remove bold tags
   const cleanText = text.replace(/<\/?b>/g, '');
-
   const utter = new SpeechSynthesisUtterance(cleanText);
   const voice = getVoice(lang);
   if (voice) utter.voice = voice;
-  utter.lang = lang === 'en' ? 'en-US' : lang === 'de' ? 'de-DE' : lang;
+
+  // Use user's accent preference for English
+  if (lang === 'en') {
+    utter.lang = getLangPref().accent || 'en-US';
+  } else if (lang === 'de') {
+    utter.lang = 'de-DE';
+  } else {
+    utter.lang = lang;
+  }
+
   utter.rate = 0.85;
   utter.pitch = 1;
 
@@ -2813,6 +2949,103 @@ function speak(text, lang, btnEl) {
   }
 
   speechSynthesis.speak(utter);
+}
+
+// ============== LANGUAGE & ACCENT SETTINGS ==============
+const LANG_PREF_KEY = 'vocab504_langprefs';
+
+function defaultLangPref() {
+  return {
+    accent: 'en-US',   // 'en-US' or 'en-GB'
+    showEN: true,       // English definition
+    showDE: true,       // German translation
+    showFA: true,       // Farsi translation
+    showENEX: true,     // English example
+    showDEEX: true      // German example
+  };
+}
+
+function getLangPref() {
+  try {
+    const d = JSON.parse(localStorage.getItem(LANG_PREF_KEY));
+    if (d) return { ...defaultLangPref(), ...d };
+  } catch(e) {}
+  return defaultLangPref();
+}
+
+function saveLangPref(p) {
+  try { localStorage.setItem(LANG_PREF_KEY, JSON.stringify(p)); } catch(e) {}
+}
+
+function getEnFlag() {
+  return getLangPref().accent === 'en-GB' ? '🇬🇧' : '🇺🇸';
+}
+
+function setAccent(accent) {
+  const p = getLangPref();
+  p.accent = accent;
+  saveLangPref(p);
+  updateLangUI();
+  renderContent(); // re-render cards with new flag
+}
+
+function toggleLang(key) {
+  const p = getLangPref();
+  const map = { en: 'showEN', de: 'showDE', fa: 'showFA', enEx: 'showENEX', deEx: 'showDEEX' };
+  const field = map[key];
+  if (!field) return;
+  p[field] = !p[field];
+
+  // Prevent turning off everything
+  if (!p.showEN && !p.showDE && !p.showFA && !p.showENEX && !p.showDEEX) {
+    p[field] = true; // undo — at least one must stay on
+    return;
+  }
+
+  saveLangPref(p);
+  updateLangUI();
+  renderContent();
+}
+
+function updateLangUI() {
+  const p = getLangPref();
+  const flag = getEnFlag();
+
+  // Accent buttons
+  const usBtn = document.getElementById('accentUS');
+  const gbBtn = document.getElementById('accentGB');
+  if (usBtn) usBtn.classList.toggle('active', p.accent === 'en-US');
+  if (gbBtn) gbBtn.classList.toggle('active', p.accent === 'en-GB');
+
+  // Flag updates
+  const enFlag = document.getElementById('enFlag');
+  const enExFlag = document.getElementById('enExFlag');
+  if (enFlag) enFlag.textContent = flag;
+  if (enExFlag) enExFlag.textContent = flag;
+
+  // Toggle switches
+  const toggles = { toggleEN: p.showEN, toggleDE: p.showDE, toggleFA: p.showFA, toggleENEX: p.showENEX, toggleDEEX: p.showDEEX };
+  for (const [id, on] of Object.entries(toggles)) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('on', on);
+  }
+
+  // Header subtitle
+  const sub = document.querySelector('.header .subtitle');
+  if (sub) {
+    const parts = [];
+    if (p.showEN || p.showENEX) parts.push(`EN ${flag}`);
+    if (p.showDE || p.showDEEX) parts.push('DE 🇩🇪');
+    if (p.showFA) parts.push('FA 🇮🇷');
+    sub.textContent = `Daily IELTS Vocabulary · ${parts.join(' / ')}`;
+  }
+}
+
+function toggleLangSettings() {
+  const body = document.getElementById('langSettingsBody');
+  const arrow = document.getElementById('langArrow');
+  const isOpen = body.classList.toggle('open');
+  arrow.classList.toggle('open', isOpen);
 }
 
 // ============== NAVIGATION ==============
@@ -2985,29 +3218,27 @@ function renderDayWords(container) {
 
 function renderWordCard(w, num, idx) {
   const uid = `w${num}`;
-  return `
-  <div class="word-card">
-    <!-- Word Header -->
-    <div class="word-header">
-      <div>
-        <div class="word-title">${w.word}</div>
-        <div class="word-phonetic">${w.phonetic}</div>
-      </div>
-      <div class="word-number">#${num}</div>
-    </div>
+  const lp = getLangPref();
+  const enFlag = getEnFlag();
+  let sections = '';
 
-    <!-- English Definition -->
+  // English Definition
+  if (lp.showEN) {
+    sections += `
     <div class="word-section">
-      <div class="section-label en-label"><span class="flag">🇬🇧</span> ENGLISH DEFINITION</div>
+      <div class="section-label en-label"><span class="flag">${enFlag}</span> ENGLISH DEFINITION</div>
       <div class="definition-text">${w.def}</div>
       <div class="audio-row">
         <button class="audio-btn en" onclick="speak('${w.word}', 'en', this)">
-          ${speakerSVG} Word 🇬🇧
+          ${speakerSVG} Word ${enFlag}
         </button>
       </div>
-    </div>
+    </div>`;
+  }
 
-    <!-- German Translation -->
+  // German Translation
+  if (lp.showDE) {
+    sections += `
     <div class="word-section" style="background: #f9fdf9;">
       <div class="section-label de-label"><span class="flag">🇩🇪</span> DEUTSCH</div>
       <div class="translation-text"><strong>${w.german}</strong> — ${w.germanDef}</div>
@@ -3016,26 +3247,35 @@ function renderWordCard(w, num, idx) {
           ${speakerSVG} Wort 🇩🇪
         </button>
       </div>
-    </div>
+    </div>`;
+  }
 
-    <!-- Farsi Translation -->
+  // Farsi Translation
+  if (lp.showFA) {
+    sections += `
     <div class="word-section" style="background: #fffaf5;">
       <div class="section-label fa-label"><span class="flag">🇮🇷</span> فارسی</div>
       <div class="translation-text farsi-text">${w.farsi}</div>
-    </div>
+    </div>`;
+  }
 
-    <!-- Example EN -->
+  // English Example
+  if (lp.showENEX) {
+    sections += `
     <div class="word-section">
-      <div class="section-label en-label"><span class="flag">🇬🇧</span> EXAMPLE</div>
+      <div class="section-label en-label"><span class="flag">${enFlag}</span> EXAMPLE</div>
       <div class="example-box en-ex">${w.exEN}</div>
       <div class="audio-row" style="margin-top:8px;">
         <button class="audio-btn en" onclick="speak('${escapeForJS(w.exEN)}', 'en', this)">
-          ${speakerSVG} Listen 🇬🇧
+          ${speakerSVG} Listen ${enFlag}
         </button>
       </div>
-    </div>
+    </div>`;
+  }
 
-    <!-- Example DE -->
+  // German Example
+  if (lp.showDEEX) {
+    sections += `
     <div class="word-section" style="background: #f9fdf9;">
       <div class="section-label de-label"><span class="flag">🇩🇪</span> BEISPIEL</div>
       <div class="example-box de-ex">${w.exDE}</div>
@@ -3044,7 +3284,31 @@ function renderWordCard(w, num, idx) {
           ${speakerSVG} Hören 🇩🇪
         </button>
       </div>
+    </div>`;
+  }
+
+  // If no word audio button was shown (EN definition hidden), add standalone audio
+  if (!lp.showEN) {
+    sections = `
+    <div class="word-section">
+      <div class="audio-row">
+        <button class="audio-btn en" onclick="speak('${w.word}', 'en', this)">
+          ${speakerSVG} Pronunciation ${enFlag}
+        </button>
+      </div>
+    </div>` + sections;
+  }
+
+  return `
+  <div class="word-card">
+    <div class="word-header">
+      <div>
+        <div class="word-title">${w.word}</div>
+        <div class="word-phonetic">${w.phonetic}</div>
+      </div>
+      <div class="word-number">#${num}</div>
     </div>
+    ${sections}
   </div>`;
 }
 
@@ -3993,6 +4257,9 @@ window.addEventListener('DOMContentLoaded', () => {
     showReminderBanner();
   }
   
+  // Initialize language settings UI
+  updateLangUI();
+  
   // Auto-open stats panel if there's any progress
   setTimeout(() => {
     const p = loadProgress();
@@ -4005,5 +4272,5 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 500);
 });
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a2da5dcc7f632bb7',t:'MTc4NzE1NTE3Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
